@@ -44,4 +44,6 @@ class CatalogScraper(val browser: JsoupBrowser = JsoupBrowser()) {
 
 }
 
-case class Place(address: String, available: Boolean, returnDate: Option[String] = None)
+case class Place(address: String, available: Boolean, returnDate: Option[String] = None) {
+  override def toString: String = address + " " + returnDate.getOrElse("")
+}
