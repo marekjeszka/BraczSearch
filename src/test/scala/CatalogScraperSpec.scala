@@ -53,10 +53,22 @@ class CatalogScraperSpec extends FlatSpec with Matchers with MockFactory {
     CatalogScraper.getPlaces(page, partialTable) should be (List())
   }
 
+  "CatalogScraper" should "parse correct page" in {
+    val page: String = "http://test2.html"
+    val correctHtml = "<table class=\"tableBackground\" cellpadding=\"3\"><tr></tr><tr><td>F10 Robocza</td><td></td><td></td><td></td><td>Wypożyczane na 30 dni</td><td>%s</td><td></td></tr></table>"
+
+    val availableBookHtml = prepareStubBrowser("Na półce".formatted(correctHtml))
+    val places1 = CatalogScraper.getPlaces(page, availableBookHtml)
+    places1.head should be (Place("F10 Robocza", true))
+
+    val unavailableBookHtml = prepareStubBrowser("Blokada".formatted(correctHtml))
+    val places2 = CatalogScraper.getPlaces(page, unavailableBookHtml)
+    places2.head should be (Place("F10 Robocza", false))
+  }
+
   private def prepareStubBrowser(html: String): String => Document = {
     val stubBrowser = stub[JsoupBrowser]
     (stubBrowser.get _).when(*).returning(JsoupBrowser().parseString(html))
     stubBrowser.get
   }
-
 }
