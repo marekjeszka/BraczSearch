@@ -25,7 +25,7 @@ object ConsoleBoot extends App {
       case _ =>
         if (isISBN(command)) {
           val newLink = searchLink.format(command)
-          val availablePlaces: List[Place] = new CatalogScraper().getPlaces(newLink) filter (_.available)
+          val availablePlaces: List[Place] = CatalogScraper.getPlaces(newLink).filter(_.available)
           availablePlaces match {
             case Nil => (s"Sorry, could not find available locations for: $command", newLink)
             case l =>

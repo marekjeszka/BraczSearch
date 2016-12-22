@@ -3,13 +3,15 @@ import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.model.{Document, Element}
 
-class CatalogScraper(val browser: JsoupBrowser = JsoupBrowser()) {
-  def parseLink(link: String): Document = {
+object CatalogScraper {
+  private lazy val browser = JsoupBrowser()
+
+  private def parseLink(link: String): Document = {
     browser.get(link)
   }
 
-  def getPlaces(link: String): List[Place] = {
-    val tables = parseLink(link)
+  def getPlaces(link: String, linkParser: (String) => Document = parseLink): List[Place] = {
+    val tables = linkParser(link)
         .extract(elementList(".tableBackground"))
         .filter(_.hasAttr("cellpadding"))
         .filter(a => "3".equals(a.attr("cellpadding")))
