@@ -55,15 +55,19 @@ class CatalogScraperSpec extends FlatSpec with Matchers with MockFactory {
 
   "CatalogScraper" should "parse correct page" in {
     val page: String = "http://test2.html"
-    val correctHtml = "<table class=\"tableBackground\" cellpadding=\"3\"><tr></tr><tr><td>F10 Robocza</td><td></td><td></td><td></td><td>Wypożyczane na 30 dni</td><td>%s</td><td></td></tr></table>"
+    val correctHtml =
+      """<table class="tableBackground" cellpadding="3"><tr></tr>
+        |<tr><td>F10 Robocza</td><td></td><td></td><td></td><td>Wypożyczane na 30 dni</td><td>Na półce</td><td></td></tr>
+        |<tr><td>F11 Marcinkowskiego</td><td></td><td></td><td></td><td>Czytelnia</td><td>%s</td><td></td></tr>
+        |<tr><td>F12 Rolna</td><td></td><td></td><td></td><td>Wypożyczane na 30 dni</td><td>Dostępny</td><td></td></tr>
+        |</table>""".stripMargin
 
-    val availableBookHtml = prepareStubBrowser("Na półce".formatted(correctHtml))
+    val availableBookHtml = prepareStubBrowser(correctHtml)
     val places1 = CatalogScraper.getPlaces(page, availableBookHtml)
+    places1.length should be (3)
     places1.head should be (Place("F10 Robocza", true))
-
-    val unavailableBookHtml = prepareStubBrowser("Blokada".formatted(correctHtml))
-    val places2 = CatalogScraper.getPlaces(page, unavailableBookHtml)
-    places2.head should be (Place("F10 Robocza", false))
+    places1(1) should be (Place("F11 Marcinkowskiego", false))
+    places1(2) should be (Place("F12 Rolna", true))
   }
 
   private def prepareStubBrowser(html: String): String => Document = {
