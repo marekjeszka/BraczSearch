@@ -22,7 +22,7 @@ object CatalogScraper {
         val locationsTr = t.head >> elementList("tr")
         locationsTr match {
           case Nil => List()
-          case l @ (_ :: _) => l.tail.map(toPlace).filter(p => p != null)
+          case _ :: tail => tail.map(toPlace).filter(p => p != null)
         }
     }
   }
