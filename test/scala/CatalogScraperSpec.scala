@@ -8,27 +8,27 @@ import org.scalatest._
 class CatalogScraperSpec extends FlatSpec with Matchers with MockFactory {
 
   "CatalogScraper" should "map <table> to Place" in {
-    val table1 = "<table><tr><td><a title=\"Egzemplarze\">Muszkowska</a></td><td><a title=\"Egzemplarze\">Literatura</a></td><td><a title=\"Egzemplarze\">16F/29912</a></td><td><a title=\"Egzemplarze\">821.111-3</a></td><td><a title=\"Egzemplarze\">wypo&#380;yczane</a></td><td><a title=\"Egzemplarze\">Blokada</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"
+    val table1 = """<table><tr><td><a title="Egzemplarze">Muszkowska</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Blokada</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"""
     val place1 = CatalogScraper.toPlace(parseTable(table1, "tr").head)
 
     place1 should be (Place("Muszkowska", false))
 
-    val table2 = "<table><tr><td><a title=\"Egzemplarze\">Rolna</a></td><td><a title=\"Egzemplarze\">Literatura</a></td><td><a title=\"Egzemplarze\">16F/29912</a></td><td><a title=\"Egzemplarze\">821.111-3</a></td><td><a title=\"Egzemplarze\">wypo&#380;yczane</a></td><td><a title=\"Egzemplarze\">Dostępny</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"
+    val table2 = """<table><tr><td><a title="Egzemplarze">Rolna</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Dostępny</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"""
     val place2 = CatalogScraper.toPlace(parseTable(table2, "tr").head)
 
     place2 should be (Place("Rolna", true))
 
-    val table3 = "<table><tr><td><a title=\"Egzemplarze\">Rolna</a></td><td><a title=\"Egzemplarze\">Literatura</a></td><td><a title=\"Egzemplarze\">16F/29912</a></td><td><a title=\"Egzemplarze\">821.111-3</a></td><td><a title=\"Egzemplarze\">wypo&#380;yczane</a></td><td><a title=\"Egzemplarze\">Na półce</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"
+    val table3 = """<table><tr><td><a title="Egzemplarze">Rolna</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Na półce</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"""
     val place3 = CatalogScraper.toPlace(parseTable(table3, "tr").head)
 
     place3 should be (Place("Rolna", true))
 
-    val table4 = "<table><tr><td><a title=\"Egzemplarze\">Chwiałkowskiego</a></td><td><a title=\"Egzemplarze\">Literatura</a></td><td><a title=\"Egzemplarze\">16F/29912</a></td><td><a title=\"Egzemplarze\">821.111-3</a></td><td><a title=\"Egzemplarze\">czytelnia</a></td><td><a title=\"Egzemplarze\">Na półce</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"
+    val table4 = """<table><tr><td><a title="Egzemplarze">Chwiałkowskiego</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">czytelnia</a></td><td><a title="Egzemplarze">Na półce</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"""
     val place4 = CatalogScraper.toPlace(parseTable(table4, "tr").head)
 
     place4 should be (Place("Chwiałkowskiego", false))
 
-    val table5 = "<table><tr><td><a title=\"Egzemplarze\">Błękitna</a></td><td><a title=\"Egzemplarze\">Literatura</a></td><td><a title=\"Egzemplarze\">16F/29912</a></td><td><a title=\"Egzemplarze\">821.111-3</a></td><td><a title=\"Egzemplarze\">wypo&#380;yczane</a></td><td><a title=\"Egzemplarze\">Wypo&#380;yczony</a></td><td>04/01/2017</td><td><a>Dodaj</a></td></tr></table>"
+    val table5 = """<table><tr><td><a title="Egzemplarze">Błękitna</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Wypo&#380;yczony</a></td><td>04/01/2017</td><td><a>Dodaj</a></td></tr></table>"""
     val place5 = CatalogScraper.toPlace(parseTable(table5, "tr").head)
 
     place5 should be (Place("Błękitna", false, Option("04/01/2017")))
@@ -46,10 +46,10 @@ class CatalogScraperSpec extends FlatSpec with Matchers with MockFactory {
     val emptyPage = prepareStubBrowser("")
     CatalogScraper.getPlaces(page, emptyPage) should be (List())
 
-    val emptyTable = prepareStubBrowser("<table class=\"tableBackground\" cellpadding=\"3\"></table>")
+    val emptyTable = prepareStubBrowser("""<table class="tableBackground" cellpadding="3"></table>""")
     CatalogScraper.getPlaces(page, emptyTable) should be (List())
 
-    val partialTable = prepareStubBrowser("<table class=\"tableBackground\" cellpadding=\"3\"><tr><td></td></tr><tr></tr></table>")
+    val partialTable = prepareStubBrowser("""<table class="tableBackground" cellpadding="3"><tr><td></td></tr><tr></tr></table>""")
     CatalogScraper.getPlaces(page, partialTable) should be (List())
   }
 
