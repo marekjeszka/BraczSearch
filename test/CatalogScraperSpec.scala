@@ -31,7 +31,7 @@ class CatalogScraperSpec extends FlatSpec with Matchers with MockFactory {
     val table5 = """<table><tr><td><a title="Egzemplarze">Błękitna</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Wypo&#380;yczony</a></td><td>04/01/2017</td><td><a>Dodaj</a></td></tr></table>"""
     val place5 = CatalogScraper.toPlace(parseTable(table5, "tr").head)
 
-    place5 should be (Place("Błękitna", false, Option("04/01/2017")))
+    place5 should be (Place("Błękitna", false, "04/01/2017"))
   }
 
   private def parseTable(html: String, htmlElement: String): List[Element] = {
@@ -41,16 +41,16 @@ class CatalogScraperSpec extends FlatSpec with Matchers with MockFactory {
   "CatalogScraper" should "handle incorrect pages" in {
     val emptyHtml = prepareStubBrowser("<html></html>")
     val page: String = "http://test1.html"
-    CatalogScraper.getPlaces(page, emptyHtml) should be (List())
+    CatalogScraper.getAllPlaces(page, emptyHtml) should be (List())
 
     val emptyPage = prepareStubBrowser("")
-    CatalogScraper.getPlaces(page, emptyPage) should be (List())
+    CatalogScraper.getAllPlaces(page, emptyPage) should be (List())
 
     val emptyTable = prepareStubBrowser("""<table class="tableBackground" cellpadding="3"></table>""")
-    CatalogScraper.getPlaces(page, emptyTable) should be (List())
+    CatalogScraper.getAllPlaces(page, emptyTable) should be (List())
 
     val partialTable = prepareStubBrowser("""<table class="tableBackground" cellpadding="3"><tr><td></td></tr><tr></tr></table>""")
-    CatalogScraper.getPlaces(page, partialTable) should be (List())
+    CatalogScraper.getAllPlaces(page, partialTable) should be (List())
   }
 
   "CatalogScraper" should "parse correct page" in {
@@ -63,7 +63,7 @@ class CatalogScraperSpec extends FlatSpec with Matchers with MockFactory {
         |</table>""".stripMargin
 
     val availableBookHtml = prepareStubBrowser(correctHtml)
-    val places1 = CatalogScraper.getPlaces(page, availableBookHtml)
+    val places1 = CatalogScraper.getAllPlaces(page, availableBookHtml)
     places1.length should be (3)
     places1.head should be (Place("F10 Robocza", true))
     places1(1) should be (Place("F11 Marcinkowskiego", false))
