@@ -1,5 +1,5 @@
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest._
 
 class PlaceSpec extends FlatSpec with Matchers with MockFactory {
   "Place" should "be ordered by date" in {
