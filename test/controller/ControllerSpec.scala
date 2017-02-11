@@ -1,7 +1,6 @@
 package controller
 
 import catalog.{BookLocation, CatalogScraper}
-import controllers.SearchController
 import org.mockito.Matchers._
 import org.mockito.Mockito.when
 import org.scalatest.mock.MockitoSugar

@@ -1,1 +1,1 @@
-GET     /search         controllers.SearchController.search
+GET     /search         controller.SearchController.search
