@@ -1,14 +1,21 @@
+package catalog
+
+import com.typesafe.config.ConfigFactory
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.model.{Document, Element}
 
-object CatalogScraper {
+class CatalogScraper {
   private lazy val browser = JsoupBrowser()
+  private lazy val searchLink = ConfigFactory.load().getString("braczsearch.link")
+
 
   private def parseLink(link: String): Document = {
     browser.get(link)
   }
+
+  private def formatLink(command: String) = searchLink.format(command)
 
   def getAllPlaces(link: String, linkParser: (String) => Document = parseLink): List[BookLocation] = {
     val tables = linkParser(link)
@@ -27,7 +34,7 @@ object CatalogScraper {
     }
   }
 
-  def getPlacesGrouped(link: String): Map[Boolean, List[BookLocation]] = getAllPlaces(link).groupBy(_.available)
+  def getPlacesGrouped(isbn: String): Map[Boolean, List[BookLocation]] = getAllPlaces(formatLink(isbn)).groupBy(_.available)
 
   def toPlace(el: Element): BookLocation = {
     val elementsTd = el >> elementList("td")

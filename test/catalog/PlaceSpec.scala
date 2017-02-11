@@ -1,7 +1,8 @@
-import org.scalamock.scalatest.MockFactory
+package catalog
+
 import org.scalatest._
 
-class PlaceSpec extends FlatSpec with Matchers with MockFactory {
+class PlaceSpec extends FlatSpec with Matchers {
   "Place" should "be ordered by date" in {
     val place1 = BookLocation("street", true, "01/05/2017")
     val place2 = BookLocation("street", true, "01/02/2017")
