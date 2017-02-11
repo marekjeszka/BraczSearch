@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 import scala.io.StdIn
 
 object ConsoleBoot extends App {
-  val searchLink = ConfigFactory.load().getString("braczsearch.link")
+  lazy val searchLink = ConfigFactory.load().getString("braczsearch.link")
 
   programLoop()
 //  private val ISBN = "9788380620438"
@@ -25,7 +25,7 @@ object ConsoleBoot extends App {
       case _ =>
         if (isISBN(command)) {
           val newLink = searchLink.format(command)
-          val places: Map[Boolean, List[Place]] = CatalogScraper.getPlacesGrouped(newLink)
+          val places: Map[Boolean, List[BookLocation]] = CatalogScraper.getPlacesGrouped(newLink)
           if (places.nonEmpty)
             places.map( place =>
               if (place._1) {

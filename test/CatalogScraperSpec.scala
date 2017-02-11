@@ -11,27 +11,27 @@ class CatalogScraperSpec extends FlatSpec with Matchers with MockFactory {
     val table1 = """<table><tr><td><a title="Egzemplarze">Muszkowska</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Blokada</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"""
     val place1 = CatalogScraper.toPlace(parseTable(table1, "tr").head)
 
-    place1 should be (Place("Muszkowska", false))
+    place1 should be (BookLocation("Muszkowska", false))
 
     val table2 = """<table><tr><td><a title="Egzemplarze">Rolna</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Dostępny</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"""
     val place2 = CatalogScraper.toPlace(parseTable(table2, "tr").head)
 
-    place2 should be (Place("Rolna", true))
+    place2 should be (BookLocation("Rolna", true))
 
     val table3 = """<table><tr><td><a title="Egzemplarze">Rolna</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Na półce</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"""
     val place3 = CatalogScraper.toPlace(parseTable(table3, "tr").head)
 
-    place3 should be (Place("Rolna", true))
+    place3 should be (BookLocation("Rolna", true))
 
     val table4 = """<table><tr><td><a title="Egzemplarze">Chwiałkowskiego</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">czytelnia</a></td><td><a title="Egzemplarze">Na półce</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"""
     val place4 = CatalogScraper.toPlace(parseTable(table4, "tr").head)
 
-    place4 should be (Place("Chwiałkowskiego", false))
+    place4 should be (BookLocation("Chwiałkowskiego", false))
 
     val table5 = """<table><tr><td><a title="Egzemplarze">Błękitna</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Wypo&#380;yczony</a></td><td>04/01/2017</td><td><a>Dodaj</a></td></tr></table>"""
     val place5 = CatalogScraper.toPlace(parseTable(table5, "tr").head)
 
-    place5 should be (Place("Błękitna", false, "04/01/2017"))
+    place5 should be (BookLocation("Błękitna", false, "04/01/2017"))
   }
 
   private def parseTable(html: String, htmlElement: String): List[Element] = {
@@ -65,9 +65,9 @@ class CatalogScraperSpec extends FlatSpec with Matchers with MockFactory {
     val availableBookHtml = prepareStubBrowser(correctHtml)
     val places1 = CatalogScraper.getAllPlaces(page, availableBookHtml)
     places1.length should be (3)
-    places1.head should be (Place("F10 Robocza", true))
-    places1(1) should be (Place("F11 Marcinkowskiego", false))
-    places1(2) should be (Place("F12 Rolna", true))
+    places1.head should be (BookLocation("F10 Robocza", true))
+    places1(1) should be (BookLocation("F11 Marcinkowskiego", false))
+    places1(2) should be (BookLocation("F12 Rolna", true))
   }
 
   private def prepareStubBrowser(html: String): String => Document = {
