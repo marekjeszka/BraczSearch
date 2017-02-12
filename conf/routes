@@ -1,1 +1,3 @@
-GET     /search         controller.SearchController.search
+GET     /                     controller.HomeController.home
+
+GET     /search/              controller.SearchController.search(isbn: String ?= "")

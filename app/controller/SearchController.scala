@@ -3,16 +3,18 @@ package controller
 import javax.inject._
 
 import catalog.CatalogScraper
-import play.api.libs.json.Json
+import play.api.libs.json._
 import play.api.mvc._
 
 @Singleton
 class SearchController @Inject() (catalogScraper: CatalogScraper) extends Controller {
 
-  def search() = Action {
+  def search(isbn: String) = Action {
     import catalog.BookLocation._
-    val head = catalogScraper.getPlacesGrouped("9788374805537")(true).head
-    val json = Json.toJson(head)
-    Ok(json)
+    val places = catalogScraper.getPlacesGrouped(isbn).get(true)
+    Ok(places match {
+      case None => Json.toJson("Nothing found")
+      case Some(l) => Json.toJson(l)
+    })
   }
 }
