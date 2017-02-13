@@ -37,7 +37,12 @@ class CatalogScraper(browser: JsoupBrowser) {
     }
   }
 
-  def getPlacesGrouped(isbn: String): Map[Boolean, List[BookLocation]] = getAllPlaces(formatLink(isbn)).groupBy(_.available)
+  def getPlacesGrouped(isbn: String): CatalogResult = {
+    val link = formatLink(isbn)
+
+    val allPlaces = getAllPlaces(link)//.groupBy(_.available)
+    CatalogResult(link, allPlaces.filter(_.available), allPlaces.filter(!_.available))
+  }
 
   def toPlace(el: Element): BookLocation = {
     val elementsTd = el >> elementList("td")
@@ -67,3 +72,5 @@ object AvailabilityOrdering extends Ordering[BookLocation] {
     }
   }
 }
+
+case class CatalogResult(link: String, available: List[BookLocation], taken: List[BookLocation])

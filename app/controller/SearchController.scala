@@ -10,7 +10,7 @@ import views.html.SearchResult
 class SearchController @Inject() (catalogScraper: CatalogScraper) extends Controller {
 
   def search(isbn: String) = Action {
-    val places = catalogScraper.getPlacesGrouped(isbn).get(true)
-    Ok(SearchResult.render(places.getOrElse(Nil)))
+    val places = catalogScraper.getPlacesGrouped(isbn)
+    Ok(SearchResult.render(places.available))
   }
 }

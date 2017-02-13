@@ -1,6 +1,6 @@
 package controller
 
-import catalog.{BookLocation, CatalogScraper}
+import catalog.{BookLocation, CatalogResult, CatalogScraper}
 import org.mockito.Matchers._
 import org.mockito.Mockito.when
 import org.scalatest.mock.MockitoSugar
@@ -21,7 +21,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
     "should display books" in {
       val aBook1 = BookLocation("street", true)
       val aBook2 = BookLocation("street2", true)
-      when(stubScraper.getPlacesGrouped(anyString())).thenReturn(Map(true -> List(aBook1, aBook2)))
+      when(stubScraper.getPlacesGrouped(anyString())).thenReturn(CatalogResult("",List(aBook1, aBook2),Nil))
 
       val result: Future[Result] = searchController.search("").apply(FakeRequest())
 
@@ -29,8 +29,8 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       bodyText must (include ("street") and include ("street2"))
     }
 
-    "should work for incorrect isbn" in {
-      when(stubScraper.getPlacesGrouped(anyString())).thenReturn(Map[Boolean,List[BookLocation]]())
+    "should work with empty results" in {
+      when(stubScraper.getPlacesGrouped(anyString())).thenReturn(CatalogResult("",Nil,Nil))
 
       val result: Future[Result] = searchController.search("").apply(FakeRequest())
       val bodyText: String = contentAsString(result)
