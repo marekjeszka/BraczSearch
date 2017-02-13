@@ -3,13 +3,15 @@ package catalog
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
-import net.ruippeixotog.scalascraper.model.{Document, Element}
+import net.ruippeixotog.scalascraper.model.Element
 import org.scalatest._
 import org.scalatest.mock.MockitoSugar
 
 class CatalogScraperSpec extends FlatSpec with Matchers with MockitoSugar {
 
   private val catalogScraper = new CatalogScraper()
+  private val page: String = "http://test1.html"
+
   "CatalogScraper" should "map <table> to Place" in {
     val table1 = """<table><tr><td><a title="Egzemplarze">Muszkowska</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Blokada</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"""
     val place1 = catalogScraper.toPlace(parseTable(table1, "tr").head)
@@ -47,7 +49,6 @@ class CatalogScraperSpec extends FlatSpec with Matchers with MockitoSugar {
 
   "CatalogScraper" should "handle incorrect pages" in {
     val emptyHtml = prepareStubBrowser("<html></html>")
-    val page: String = "http://test1.html"
     getStubbedCatalogScraper(emptyHtml).getAllPlaces(page) should be (List())
 
     val emptyPage = prepareStubBrowser("")
@@ -61,7 +62,6 @@ class CatalogScraperSpec extends FlatSpec with Matchers with MockitoSugar {
   }
 
   "CatalogScraper" should "parse correct page" in {
-    val page: String = "http://test2.html"
     val correctHtml =
       """<table class="tableBackground" cellpadding="3"><tr></tr>
         |<tr><td>F10 Robocza</td><td></td><td></td><td></td><td>Wypożyczane na 30 dni</td><td>Na półce</td><td></td></tr>

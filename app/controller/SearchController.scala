@@ -11,6 +11,6 @@ class SearchController @Inject() (catalogScraper: CatalogScraper) extends Contro
 
   def search(isbn: String) = Action {
     val places = catalogScraper.getPlacesGrouped(isbn)
-    Ok(SearchResult.render(places.available))
+    Ok(SearchResult.render(places))
   }
 }

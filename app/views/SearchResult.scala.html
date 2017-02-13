@@ -1,11 +1,20 @@
-@(places: List[BookLocation])
+@(result: CatalogResult)
 
-@if(places.isEmpty) {
+@if(result.available.isEmpty) {
     <p>Nothing found</p>
 } else {
-<ul>
-@for(p <- places) {
-    <li>@p.address</li>
-}
-</ul>
+    <p>This book is available at:</p>
+    <ul>
+    @for(p <- result.available) {
+        <li>@p.address</li>
+    }
+    </ul>
+    @if(!result.taken.isEmpty) {
+        <p>This book will be available at:</p>
+        <ul>
+            @for(p <- result.taken) {
+            <li>@p.address, at @BookLocation.dateAsString(p.returnDate)</li>
+            }
+        </ul>
+    }
 }

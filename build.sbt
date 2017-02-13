@@ -18,4 +18,4 @@ libraryDependencies ++= {
   )
 }
 
-TwirlKeys.templateImports += "catalog.BookLocation"
+TwirlKeys.templateImports += "catalog._"

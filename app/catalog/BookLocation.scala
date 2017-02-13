@@ -7,18 +7,16 @@ import play.api.libs.json._
 import scala.util.{Failure, Success, Try}
 
 case class BookLocation(address: String, available: Boolean, returnDate: Option[DateTime]) {
-  import BookLocation.formatter
-
-  private def dateAsString = returnDate match {
-    case None => ""
-    case Some(d) => " " + formatter.print(d)
-  }
-
-  override def toString: String = address + dateAsString
+  override def toString: String = address + BookLocation.dateAsString(returnDate)
 }
 
 object BookLocation {
   private lazy val formatter = DateTimeFormat.forPattern(ConfigFactory.load().getString("braczsearch.dateFormat"))
+
+  def dateAsString(date: Option[DateTime]) = date match {
+    case None => ""
+    case Some(d) => " " + formatter.print(d)
+  }
 
   def apply(address: String, available: Boolean): BookLocation = new BookLocation(address, available, None)
 
@@ -28,13 +26,5 @@ object BookLocation {
       case Success(t) => Option(t)
     }
     new BookLocation(address, available, date)
-  }
-
-  implicit object BookLocationWriteable extends Writes[BookLocation] {
-    override def writes(o: BookLocation): JsValue = Json.obj(
-      "address" -> o.address,
-      "available" -> o.available,
-      "returnDate" -> o.returnDate
-    )
   }
 }

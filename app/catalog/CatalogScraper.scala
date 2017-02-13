@@ -51,7 +51,7 @@ class CatalogScraper(browser: JsoupBrowser) {
       return null
 
     val available: Boolean = elementsTd(4).text.toLowerCase.contains("wypożyczane") &&
-      ("Dostępny".equals(elementsTd(5).text) || "Na półce".equals(elementsTd(5).text))
+      "Na półce".equals(elementsTd(5).text)
 
     val date = elementsTd(6).text
 
