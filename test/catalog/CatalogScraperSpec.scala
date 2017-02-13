@@ -41,19 +41,23 @@ class CatalogScraperSpec extends FlatSpec with Matchers with MockitoSugar {
     JsoupBrowser().parseString(html) >> elementList(htmlElement)
   }
 
+  private def getStubbedCatalogScraper(stubBrowser: JsoupBrowser) = {
+    new CatalogScraper(stubBrowser)
+  }
+
   "CatalogScraper" should "handle incorrect pages" in {
     val emptyHtml = prepareStubBrowser("<html></html>")
     val page: String = "http://test1.html"
-    catalogScraper.getAllPlaces(page, emptyHtml) should be (List())
+    getStubbedCatalogScraper(emptyHtml).getAllPlaces(page) should be (List())
 
     val emptyPage = prepareStubBrowser("")
-    catalogScraper.getAllPlaces(page, emptyPage) should be (List())
+    getStubbedCatalogScraper(emptyPage).getAllPlaces(page) should be (List())
 
     val emptyTable = prepareStubBrowser("""<table class="tableBackground" cellpadding="3"></table>""")
-    catalogScraper.getAllPlaces(page, emptyTable) should be (List())
+    getStubbedCatalogScraper(emptyTable).getAllPlaces(page) should be (List())
 
     val partialTable = prepareStubBrowser("""<table class="tableBackground" cellpadding="3"><tr><td></td></tr><tr></tr></table>""")
-    catalogScraper.getAllPlaces(page, partialTable) should be (List())
+    getStubbedCatalogScraper(partialTable).getAllPlaces(page) should be (List())
   }
 
   "CatalogScraper" should "parse correct page" in {
@@ -66,20 +70,20 @@ class CatalogScraperSpec extends FlatSpec with Matchers with MockitoSugar {
         |</table>""".stripMargin
 
     val availableBookHtml = prepareStubBrowser(correctHtml)
-    val places1 = catalogScraper.getAllPlaces(page, availableBookHtml)
+    val places1 = getStubbedCatalogScraper(availableBookHtml).getAllPlaces(page)
     places1.length should be (3)
     places1.head should be (BookLocation("F10 Robocza", true))
     places1(1) should be (BookLocation("F11 Marcinkowskiego", false))
     places1(2) should be (BookLocation("F12 Rolna", true))
   }
 
-  private def prepareStubBrowser(html: String): String => Document = {
+  private def prepareStubBrowser(html: String): JsoupBrowser = {
     import org.mockito.Matchers.anyString
     import org.mockito.Mockito.when
 
     val stubBrowser = mock[JsoupBrowser]
 
     when(stubBrowser.get(anyString())).thenReturn(JsoupBrowser().parseString(html))
-    stubBrowser.get
+    stubBrowser
   }
 }

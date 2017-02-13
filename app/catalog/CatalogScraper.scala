@@ -1,15 +1,18 @@
 package catalog
 
+import javax.inject.Singleton
+
 import com.typesafe.config.ConfigFactory
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.model.{Document, Element}
 
-class CatalogScraper {
-  private lazy val browser = JsoupBrowser()
+@Singleton
+class CatalogScraper(browser: JsoupBrowser) {
   private lazy val searchLink = ConfigFactory.load().getString("braczsearch.link")
 
+  def this() = this(JsoupBrowser())
 
   private def parseLink(link: String): Document = {
     browser.get(link)
@@ -17,8 +20,8 @@ class CatalogScraper {
 
   private def formatLink(command: String) = searchLink.format(command)
 
-  def getAllPlaces(link: String, linkParser: (String) => Document = parseLink): List[BookLocation] = {
-    val tables = linkParser(link)
+  def getAllPlaces(link: String): List[BookLocation] = {
+    val tables = parseLink(link)
         .extract(elementList(".tableBackground"))
         .filter(_.hasAttr("cellpadding"))
         .filter(a => "3".equals(a.attr("cellpadding")))
