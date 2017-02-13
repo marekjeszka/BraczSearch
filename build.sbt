@@ -17,3 +17,5 @@ libraryDependencies ++= {
     "org.mockito" % "mockito-all" % "1.8.4" % Test
   )
 }
+
+TwirlKeys.templateImports += "catalog.BookLocation"

@@ -1,0 +1,11 @@
+@(places: List[BookLocation])
+
+@if(places.isEmpty) {
+    <p>Nothing found</p>
+} else {
+<ul>
+@for(p <- places) {
+    <li>@p.address</li>
+}
+</ul>
+}
