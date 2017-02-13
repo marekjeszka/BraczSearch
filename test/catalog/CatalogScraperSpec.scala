@@ -65,11 +65,12 @@ class CatalogScraperSpec extends FlatSpec with Matchers with MockitoSugar {
         |</table>""".stripMargin
 
     val availableBookHtml = prepareStubBrowser(correctHtml)
-    val places1 = getStubbedCatalogScraper(availableBookHtml).getAllPlaces(page)
-    places1.length should be (3)
-    places1.head should be (BookLocation("F10 Robocza", true))
-    places1(1) should be (BookLocation("F11 Marcinkowskiego", false))
-    places1(2) should be (BookLocation("F12 Rolna", false))
+    val places = getStubbedCatalogScraper(availableBookHtml).getPlacesGrouped(page)
+    places.available.length should be (1)
+    places.taken.length should be (2)
+    places.available.head should be (BookLocation("F10 Robocza", true))
+    places.taken.head should be (BookLocation("F11 Marcinkowskiego", false))
+    places.taken(1) should be (BookLocation("F12 Rolna", false))
   }
 
   private def prepareStubBrowser(html: String): JsoupBrowser = {
