@@ -17,17 +17,19 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
 
   "'search' endpoint" should {
     val searchController = new SearchController(stubScraper)
+    val aBook1 = BookLocation("street", true)
+    val aBook2 = BookLocation("street2", true)
 
     "should display link and books" in {
-      val aBook1 = BookLocation("street", true)
-      val aBook2 = BookLocation("street2", true)
       val link = "http://bracz.org"
       when(stubScraper.getPlacesGrouped(anyString())).thenReturn(CatalogResult(link,List(aBook1, aBook2),Nil))
 
       val result: Future[Result] = searchController.search("").apply(FakeRequest())
 
       val bodyText: String = contentAsString(result)
-      bodyText must (include(link) and include ("street") and include ("street2"))
+      bodyText must (
+        include(link) and include ("street") and include ("street2") and
+        not include "This book will be available at")
     }
 
     "should work with empty results" in {
@@ -36,6 +38,14 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       val result: Future[Result] = searchController.search("").apply(FakeRequest())
       val bodyText: String = contentAsString(result)
       bodyText must include ("Nothing found")
+    }
+
+    "should work with only taken books" in {
+      when(stubScraper.getPlacesGrouped(anyString())).thenReturn(CatalogResult("",Nil,List(BookLocation("street",false))))
+
+      val result: Future[Result] = searchController.search("").apply(FakeRequest())
+      val bodyText: String = contentAsString(result)
+      bodyText must include ("This book will be available at")
     }
   }
 

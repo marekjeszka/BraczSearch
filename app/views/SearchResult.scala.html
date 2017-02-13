@@ -1,12 +1,14 @@
 @(result: CatalogResult)
 
-@if(result.available.isEmpty) {
+@if(result.available.isEmpty && result.taken.isEmpty) {
     <p>Nothing found</p>
 } else {
-    <p>This book is available at:</p>
-    <ul>
-    @for(p <- result.available) {
-        <li>@p.address</li>
+    @if(!result.available.isEmpty) {
+        <p>This book is available at:</p>
+        <ul>
+        @for(p <- result.available) {
+            <li>@p.address</li>
+        }
     }
     </ul>
     @if(!result.taken.isEmpty) {
