@@ -50,10 +50,18 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
   }
 
   "home endpoint" should {
+    val homeController = new HomeController()
+
     "exist" in {
-      val controller = new HomeController()
-      val result = controller.home().apply(FakeRequest())
+      val result = homeController.home().apply(FakeRequest())
       result mustNot be (null)
+    }
+
+    "use history from cookies" in {
+      val withCookies = FakeRequest().withCookies(Cookie("history", "123/456"))
+      val result = homeController.home().apply(withCookies)
+      val bodyText: String = contentAsString(result)
+      bodyText must (include("123") and include ("456"))
     }
   }
 }

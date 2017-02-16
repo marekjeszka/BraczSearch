@@ -1,3 +1,5 @@
+@(history: List[String])
+
 @import controller.SearchController
 
 <div class="search_box">
@@ -6,4 +8,14 @@
         <input type="text" name="isbn">
         <button type="submit" class="text submit button">Search</button>
     </form>
+    @if(!history.isEmpty) {
+    <div class="history">
+        <small>Previous searches:
+        <ul>
+        @for(h <- history) {
+            <li><a href=@{s"/search/?isbn=$h"}>@h</a></li>
+        }
+        </ul></small>
+    </div>
+    }
 </div>
