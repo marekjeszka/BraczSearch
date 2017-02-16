@@ -19,3 +19,5 @@ libraryDependencies ++= {
 }
 
 TwirlKeys.templateImports += "catalog._"
+
+herokuAppName in Compile := "powerful-depths-64600"
