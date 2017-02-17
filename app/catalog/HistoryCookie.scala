@@ -10,7 +10,7 @@ case class HistoryCookie(history: List[String]) {
 
   def asCookie(): Cookie = Cookie(COOKIE_NAME, asString())
 
-  def addItem(item: String): HistoryCookie = HistoryCookie(item +: this.history)
+  def addItem(item: String): HistoryCookie = HistoryCookie(item +: this.history.take(9))
 }
 
 object HistoryCookie {

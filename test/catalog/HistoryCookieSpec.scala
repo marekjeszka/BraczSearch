@@ -34,5 +34,13 @@ class HistoryCookieSpec extends WordSpec with MustMatchers {
       cookie.history(1) must be ("12")
       cookie.history(2) must be ("34")
     }
+
+    "stores at most 10 items" in {
+      val cookie = HistoryCookie((1 to 10).toList.map(Integer.toString)).addItem("0")
+      val history = cookie.history
+
+      history.size must be (10)
+      history must not contain "10"
+    }
   }
 }
