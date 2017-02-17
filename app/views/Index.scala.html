@@ -2,20 +2,25 @@
 
 @import controller.SearchController
 
-<div class="search_box">
+@Main(title = "Catalog search") {
+<div class="container">
+    <p>
     <h1>Biblioteka Raczynskich</h1>
     <form action="/search/" method="GET">
         <input type="text" name="isbn">
         <button type="submit" class="text submit button">Search</button>
     </form>
+    </p>
     @if(!history.isEmpty) {
-    <div class="history">
-        <small>Previous searches:
-        <ul>
+    <p>
+        <small><a href="#" data-toggle="collapse" data-target="#links" class="btn btn-default btn-sm"> <span class="glyphicon glyphicon-plus"></span> </a>
+            Previous searches:
+        <div id="links" class="collapse"><ul>
         @for(h <- history) {
             <li><a href=@{s"/search/?isbn=$h"}>@h</a></li>
         }
-        </ul></small>
-    </div>
+        </ul></div></small>
+    </p>
     }
 </div>
+}
