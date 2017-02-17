@@ -4,13 +4,20 @@
 
 @Main(title = "Catalog search") {
 <div class="container">
-    <p>
     <h1>Biblioteka Raczynskich</h1>
-    <form action="/search/" method="GET">
-        <input type="text" name="isbn">
-        <button type="submit" class="text submit button">Search</button>
-    </form>
+    <p>
+    <input id="inputIsbn" type="text" name="isbn" class="form-control">
+    <button id="searchIsbn" type="submit" class="btn btn-default">Search</button>
     </p>
+    <script>
+    $('#searchIsbn').click(function(){
+        var req = new XMLHttpRequest();
+        req.open('GET', '/search/?isbn=' + document.getElementById('inputIsbn').value, false);
+        req.send()
+        document.getElementById('results').innerHTML = req.responseText;
+    });
+    </script>
+    <p id="results"></p>
     @if(!history.isEmpty) {
     <p>
         <small><a href="#" data-toggle="collapse" data-target="#links" class="btn btn-default btn-sm"> <span class="glyphicon glyphicon-plus"></span> </a>

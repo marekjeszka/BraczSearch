@@ -1,6 +1,5 @@
 @(result: CatalogResult)
 
-@Main(title = "Search result") {
 <div class="container">
 @if(result.available.isEmpty && result.taken.isEmpty) {
     <p>Nothing found</p>
@@ -21,7 +20,6 @@
             }
         </ul>
     }
+    <small>Used <a href=@result.link>link</a></small>
 }
-<small>Used <a href=@result.link>link</a></small>
 </div>
-}
