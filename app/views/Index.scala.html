@@ -12,22 +12,36 @@
     <script>
     $('#searchIsbn').click(function(){
         var req = new XMLHttpRequest();
-        req.open('GET', '/search/?isbn=' + document.getElementById('inputIsbn').value, false);
-        req.send()
-        document.getElementById('results').innerHTML = req.responseText;
+        req.open('GET', '/search/?isbn=' + document.getElementById('inputIsbn').value, true);
+        req.onload = function(e) { document.getElementById('results').innerHTML = req.responseText; }
+        req.send(null);
     });
+    function linksForHistory() {
+        var links = document.getElementById('links');
+        if (links) {
+            var history = links.getElementsByTagName('li');
+            for (var i = 0; i < history.length; ++i) {
+                history[i].onclick = function(e) {
+                    document.getElementById('inputIsbn').value = this.getElementsByTagName('a')[0].text;
+                };
+            }
+        }
+    }
     </script>
     <p id="results"></p>
     @if(!history.isEmpty) {
     <p>
         <small><a href="#" data-toggle="collapse" data-target="#links" class="btn btn-default btn-sm"> <span class="glyphicon glyphicon-plus"></span> </a>
             Previous searches:
-        <div id="links" class="collapse"><ul>
+        <div id="links" class="collapse"><ul class="list-group">
         @for(h <- history) {
-            <li><a href=@{s"/search/?isbn=$h"}>@h</a></li>
+            <li class="list-group-item"><a href="#">@h</a></li>
         }
         </ul></div></small>
     </p>
     }
+    <script>
+    linksForHistory();
+    </script>
 </div>
 }
