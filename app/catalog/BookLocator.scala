@@ -6,41 +6,22 @@ import com.typesafe.config.ConfigFactory
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
-import net.ruippeixotog.scalascraper.model.{Document, Element}
+import net.ruippeixotog.scalascraper.model.Element
 
 @Singleton
-class CatalogScraper(browser: JsoupBrowser) {
-  private lazy val searchLink = ConfigFactory.load().getString("braczsearch.link")
+class BookLocator(browser: JsoupBrowser) extends Browser[BookLocation] {
+  override protected val catalogLink: String = ConfigFactory.load().getString("braczsearch.cataloglink")
+  override protected def getBrowser: JsoupBrowser = browser
 
   def this() = this(JsoupBrowser())
 
-  private def parseLink(link: String): Document = {
-    browser.get(link)
-  }
+  def getAllPlaces(link: String): List[BookLocation] =
+    getElements(link)(toPlace).filter(p => p != null).sorted(AvailabilityOrdering)
 
-  private def formatLink(command: String) = searchLink.format(command)
+  def getPlacesGrouped(isbn: String): CatalogResult = getPlacesGroupedViaLink(formatLink(isbn))
 
-  def getAllPlaces(link: String): List[BookLocation] = {
-    val tables = parseLink(link)
-        .extract(elementList(".tableBackground"))
-        .filter(_.hasAttr("cellpadding"))
-        .filter(a => "3".equals(a.attr("cellpadding")))
-
-    tables match {
-      case Nil => List()
-      case t =>
-        val locationsTr = t.head >> elementList("tr")
-        locationsTr match {
-          case Nil => List()
-          case _ :: tail => tail.map(toPlace).filter(p => p != null).sorted(AvailabilityOrdering)
-        }
-    }
-  }
-
-  def getPlacesGrouped(isbn: String): CatalogResult = {
-    val link = formatLink(isbn)
-
-    val allPlaces = getAllPlaces(link)//.groupBy(_.available)
+  def getPlacesGroupedViaLink(link: String): CatalogResult = {
+    val allPlaces = getAllPlaces(link)
     CatalogResult(link, allPlaces.filter(_.available), allPlaces.filter(!_.available))
   }
 

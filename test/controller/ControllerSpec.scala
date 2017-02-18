@@ -1,6 +1,6 @@
 package controller
 
-import catalog.{BookLocation, CatalogResult, CatalogScraper}
+import catalog.{BookLocation, CatalogResult, BookLocator}
 import org.mockito.Matchers._
 import org.mockito.Mockito.when
 import org.scalatest.mock.MockitoSugar
@@ -13,7 +13,7 @@ import scala.concurrent.Future
 
 class ControllerSpec extends PlaySpec with Results with MockitoSugar {
 
-  private val stubScraper = mock[CatalogScraper]
+  private val stubScraper = mock[BookLocator]
 
   "'search' endpoint" should {
     val searchController = new SearchController(stubScraper)
