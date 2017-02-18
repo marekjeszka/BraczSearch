@@ -1,0 +1,12 @@
+@(history: List[String])
+
+@if(!history.isEmpty) {
+<p>
+<small> Previous searches:
+    <div id="links"><ul class="list-group">
+        @for(h <- history) {
+        <li class="list-group-item"><a href="#">@h</a></li>
+        }
+    </ul></div></small>
+}
+</p>

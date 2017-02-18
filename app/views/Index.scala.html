@@ -1,5 +1,3 @@
-@(history: List[String])
-
 @import controller.SearchController
 
 @Main(title = "Catalog search") {
@@ -9,13 +7,28 @@
     <input id="inputIsbn" type="text" name="isbn" class="form-control">
     <button id="searchIsbn" type="submit" class="btn btn-default">Search</button>
     </p>
+    <p id="results"></p>
+    <hr>
+    <p id="history"></p>
     <script>
     $('#searchIsbn').click(function(){
         var req = new XMLHttpRequest();
         req.open('GET', '/search/?isbn=' + document.getElementById('inputIsbn').value, true);
-        req.onload = function(e) { document.getElementById('results').innerHTML = req.responseText; }
+        req.onload = function(e) {
+            document.getElementById('results').innerHTML = req.responseText;
+            showHistory();
+        }
         req.send(null);
     });
+    function showHistory() {
+        var req = new XMLHttpRequest();
+        req.open('GET', '/history', true);
+        req.onload = function(e) {
+            document.getElementById('history').innerHTML = req.responseText;
+            linksForHistory();
+        }
+        req.send(null);
+    }
     function linksForHistory() {
         var links = document.getElementById('links');
         if (links) {
@@ -27,21 +40,7 @@
             }
         }
     }
-    </script>
-    <p id="results"></p>
-    @if(!history.isEmpty) {
-    <p>
-        <small><a href="#" data-toggle="collapse" data-target="#links" class="btn btn-default btn-sm"> <span class="glyphicon glyphicon-plus"></span> </a>
-            Previous searches:
-        <div id="links" class="collapse"><ul class="list-group">
-        @for(h <- history) {
-            <li class="list-group-item"><a href="#">@h</a></li>
-        }
-        </ul></div></small>
-    </p>
-    }
-    <script>
-    linksForHistory();
+    showHistory();
     </script>
 </div>
 }

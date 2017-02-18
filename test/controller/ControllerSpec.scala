@@ -59,7 +59,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
 
     "use history from cookies" in {
       val withCookies = FakeRequest().withCookies(Cookie("history", "123/456"))
-      val result = homeController.home().apply(withCookies)
+      val result = homeController.history().apply(withCookies)
       val bodyText: String = contentAsString(result)
       bodyText must (include("123") and include ("456"))
     }
