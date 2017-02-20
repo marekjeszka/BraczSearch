@@ -1,5 +1,5 @@
 GET     /                     controller.HomeController.home
 
-GET     /search/              controller.SearchController.search(isbn: String ?= "")
+GET     /search/              controller.SearchController.locate(inputText: String ?= "")
 
 GET     /history              controller.HomeController.history

@@ -48,6 +48,13 @@ class BookLocator(browser: JsoupBrowser) extends Browser[BookLocation] {
 
   def getBookName(isbn: String): Option[String] =
     parseLink(formatLink(isbn)).extract(elementList(".largeAnchor")).headOption.flatMap(h => h.attrs.get("title"))
+
+  def isIsbn(isbn: String): Boolean = {
+    if (isbn.matches("\\d{8,13}"))
+      true
+    else
+      false
+  }
 }
 
 object AvailabilityOrdering extends Ordering[BookLocation] {
