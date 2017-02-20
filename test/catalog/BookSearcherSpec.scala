@@ -29,6 +29,18 @@ class BookSearcherSpec extends WordSpec with MustMatchers with BrowserParser {
       places(1) must be (Book("two", "author2", "", "books.com"))
       places(2) must be (Book("three", "author3", "", ""))
     }
+
+    "parses pages for ISBN" in {
+      val aBook = Book("title", "author", "", "link.com")
+      val htmlISBN =
+        """<table><tr><td><a class="normalBlackFont1">ISBN:&nbsp;</a></td>
+          |<td><table><tr><td valign="top"><a class="normalBlackFont1">9788380620438</a></td>
+          |</tr></table></td></tr></table>""".stripMargin
+
+      val book = getStubbedBookSearcher(prepareStubBrowser(htmlISBN)).findIsbn(aBook)
+
+      book must be (aBook.copy(isbn = "9788380620438"))
+    }
   }
 
   private def getStubbedBookSearcher(stubBrowser: JsoupBrowser) = {

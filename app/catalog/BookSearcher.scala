@@ -31,7 +31,7 @@ class BookSearcher(browser: JsoupBrowser) extends Browser[Book] {
     Book(title, author, "", link)
   }
 
-  private def findIsbn(book: Book): Book = {
+  def findIsbn(book: Book): Book = {
     val elements = parseLink(book.link).extract(elementList(":containsOwn(ISBN:)"))
     val siblings: Option[Iterable[Element]] = for {
       head <- elements.headOption
