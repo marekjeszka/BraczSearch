@@ -12,6 +12,6 @@ class SearchController @Inject() (catalogScraper: BookLocator) extends Controlle
   def search(isbn: String) = Action { request =>
     val history = HistoryCookie(request).addItem(isbn)
     val places = catalogScraper.getPlacesGrouped(isbn)
-    Ok(SearchResult.render(places)).withCookies(history.asCookie())
+    Ok(SearchResult.render(places, catalogScraper.getBookName(isbn))).withCookies(history.asCookie())
   }
 }

@@ -64,4 +64,15 @@ class BookLocatorSpec extends FlatSpec with Matchers with BrowserParser {
     places.taken.head should be (BookLocation("F11 Marcinkowskiego", false))
     places.taken(1) should be (BookLocation("F12 Rolna", false))
   }
+
+  "BookLocator" should "find book name" in {
+    val html =
+      """<table class="tableBackground" cellpadding="3"><tr>
+        |<td><a class="largeAnchor" title="Book name" href="test123.com">test123</a></td>
+        |</tr></table>"""
+
+    val book = getStubbedBookLocator(prepareStubBrowser(html)).getBookName(page)
+
+    book.get should be ("Book name")
+  }
 }

@@ -8,6 +8,10 @@ import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.model.Element
 
+/**
+  * Locator that works with ISBN and locates books.
+  * @param browser Browser implementation.
+  */
 @Singleton
 class BookLocator(browser: JsoupBrowser) extends Browser[BookLocation] {
   override protected val catalogLink: String = ConfigFactory.load().getString("braczsearch.cataloglink")
@@ -42,6 +46,8 @@ class BookLocator(browser: JsoupBrowser) extends Browser[BookLocation] {
       if (date.matches("\\d{2}/\\d{2}/\\d{4}")) date else null)
   }
 
+  def getBookName(isbn: String): Option[String] =
+    parseLink(formatLink(isbn)).extract(elementList(".largeAnchor")).headOption.flatMap(h => h.attrs.get("title"))
 }
 
 object AvailabilityOrdering extends Ordering[BookLocation] {
