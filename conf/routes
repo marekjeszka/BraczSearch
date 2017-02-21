@@ -1,5 +1,7 @@
 GET     /                     controller.HomeController.home
 
-GET     /search/              controller.SearchController.locate(inputText: String ?= "")
+GET     /search/              controller.SearchController.search(inputText: String ?= "")
 
-GET     /history              controller.HomeController.history
+POST    /searchByLink/        controller.SearchController.searchByLink
+
+GET     /history/             controller.HomeController.history

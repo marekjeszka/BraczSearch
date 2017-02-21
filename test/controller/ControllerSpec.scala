@@ -27,7 +27,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       when(stubLocator.getBookName(anyString())).thenReturn(Some(""))
       when(stubLocator.isIsbn(anyString())).thenReturn(true)
 
-      val result: Future[Result] = searchController.locate("").apply(FakeRequest())
+      val result: Future[Result] = searchController.search("").apply(FakeRequest())
 
       val bodyText: String = contentAsString(result)
       bodyText must (
@@ -38,7 +38,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
     "should work with empty results" in {
       when(stubLocator.getPlacesGrouped(anyString())).thenReturn(CatalogResult("",Nil,Nil))
 
-      val result: Future[Result] = searchController.locate("").apply(FakeRequest())
+      val result: Future[Result] = searchController.search("").apply(FakeRequest())
       val bodyText: String = contentAsString(result)
       bodyText must include ("Nothing found")
     }
@@ -47,7 +47,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       when(stubLocator.getPlacesGrouped(anyString())).thenReturn(CatalogResult("",Nil,List(BookLocation("street",false))))
       when(stubLocator.getBookName(anyString())).thenReturn(Some("My book"))
 
-      val result: Future[Result] = searchController.locate("").apply(FakeRequest())
+      val result: Future[Result] = searchController.search("").apply(FakeRequest())
       val bodyText: String = contentAsString(result)
       bodyText must (include ("will be available at") and include ("My book"))
     }
@@ -56,7 +56,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       when(stubLocator.isIsbn(anyString())).thenReturn(false)
       when(stubSearcher.searchByName("")).thenReturn(List(Book("title","author","","")))
 
-      val result: Future[Result] = searchController.locate("").apply(FakeRequest())
+      val result: Future[Result] = searchController.search("").apply(FakeRequest())
       val bodyText: String = contentAsString(result)
       bodyText must (include ("title") and include ("author"))
     }

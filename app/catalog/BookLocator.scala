@@ -47,7 +47,10 @@ class BookLocator(browser: JsoupBrowser) extends Browser[BookLocation] {
   }
 
   def getBookName(isbn: String): Option[String] =
-    parseLink(formatLink(isbn)).extract(elementList(".largeAnchor")).headOption.flatMap(h => h.attrs.get("title"))
+    getBookNameViaLink(formatLink(isbn))
+
+  def getBookNameViaLink(link: String): Option[String] =
+    parseLink(link).extract(elementList(".largeAnchor")).headOption.flatMap(h => h.attrs.get("title"))
 
   def isIsbn(isbn: String): Boolean = {
     if (isbn.matches("\\d{13}|\\d{10}|\\d{9}X")) {

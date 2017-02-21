@@ -21,8 +21,11 @@
         }
     });
     $('#searchIsbn').click(function(){
+        loadBookLocations('/search/?inputText=' + document.getElementById('inputText').value, 'GET', null);
+    });
+    function loadBookLocations(link, method, body) {
         var req = new XMLHttpRequest();
-        req.open('GET', '/search/?inputText=' + document.getElementById('inputText').value, true);
+        req.open(method, link, true);
         req.onload = function(e) {
             document.getElementById('response').innerHTML = req.responseText;
             parseHistory();
@@ -30,11 +33,11 @@
             showLoader(false);
         }
         showLoader(true);
-        req.send(null);
-    });
+        req.send(body);
+    }
     function parseHistory() {
         var req = new XMLHttpRequest();
-        req.open('GET', '/history', true);
+        req.open('GET', '/history/', true);
         req.onload = function(e) {
             document.getElementById('history').innerHTML = req.responseText;
             linksForHistory();
@@ -58,7 +61,10 @@
             var books = ul.getElementsByTagName('li');
             for (var i = 0; i < books.length; ++i) {
                 books[i].onclick = function(e) {
-                    document.getElementById('inputText').value = this.getElementsByTagName('p')[0].textContent;
+                    var bookLink = this.getElementsByTagName('p')[0].textContent;
+                    if (bookLink) {
+                        loadBookLocations('/searchByLink/', 'POST', bookLink);
+                    }
                 }
             }
         }
