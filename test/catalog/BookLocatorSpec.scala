@@ -77,10 +77,10 @@ class BookLocatorSpec extends FlatSpec with Matchers with BrowserParser {
   }
 
   "BookLocator" should "check ISBN correctness" in {
-    val correct = List("12345678", "1234567890123")
-    correct.foreach(bookLocator.isIsbn(_) should be (true))
+    val correct = List("8389896591", "9788374800808", "837132538X")
+    correct.foreach(isbn => withClue(s"Correct ISBN $isbn:") { bookLocator.isIsbn(isbn) should be (true)})
 
-    val incorrect = List("1234567", "12345678901234")
-    incorrect.foreach(bookLocator.isIsbn(_) should be (false))
+    val incorrect = List("1234567", "1234567890", "1234567890123")
+    incorrect.foreach(isbn => withClue(s"Incorrect ISBN $isbn:") { bookLocator.isIsbn(isbn) should be (false)})
   }
 }
