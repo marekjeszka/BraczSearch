@@ -16,7 +16,7 @@ trait Browser[A] {
 
   protected def parseLink(link: String): Document = getBrowser.get(link)
 
-  protected def getElements(link: String)(rowExtractor: Element => A): List[A] = {
+  protected def getElements(link: String)(rowExtractor: Element => Option[A]): List[Option[A]] = {
     val table = parseLink(link)
       .extract(elementList(".tableBackground"))
       .filter(_.hasAttr(CELL_PADDING))

@@ -20,7 +20,7 @@ class BookLocator(browser: JsoupBrowser) extends Browser[BookLocation] {
   def this() = this(JsoupBrowser())
 
   def getAllPlaces(link: String): List[BookLocation] =
-    getElements(link)(toPlace).filter(p => p != null).sorted(AvailabilityOrdering)
+    getElements(link)(toPlace).flatten.sorted(AvailabilityOrdering)
 
   def getPlacesGrouped(isbn: String): CatalogResult = getPlacesGroupedViaLink(formatLink(isbn))
 
@@ -29,21 +29,21 @@ class BookLocator(browser: JsoupBrowser) extends Browser[BookLocation] {
     CatalogResult(link, allPlaces.filter(_.available), allPlaces.filter(!_.available))
   }
 
-  def toPlace(el: Element): BookLocation = {
+  def toPlace(el: Element): Option[BookLocation] = {
     val elementsTd = el >> elementList("td")
 
     if (elementsTd.length < 7)
-      return null
+      return None
 
     val available: Boolean = elementsTd(4).text.toLowerCase.contains("wypożyczane") &&
       "Na półce".equals(elementsTd(5).text)
 
     val date = elementsTd(6).text
 
-    BookLocation(
+    Some(BookLocation(
       elementsTd.head.text,
       available,
-      if (date.matches("\\d{2}/\\d{2}/\\d{4}")) date else null)
+      if (date.matches("\\d{2}/\\d{2}/\\d{4}")) date else null))
   }
 
   def getBookName(isbn: String): Option[String] =

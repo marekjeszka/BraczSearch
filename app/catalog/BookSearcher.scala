@@ -17,10 +17,10 @@ class BookSearcher(browser: JsoupBrowser) extends Browser[Book] {
 
   def searchByName(name: String): List[Book] = {
     val formattedLink = formatLink(name)
-    getElements(formattedLink)(toBook).map(findIsbn)
+    getElements(formattedLink)(toBook).flatMap(findIsbn)
   }
 
-  def toBook(el: Element): Book = {
+  def toBook(el: Element): Option[Book] = {
     val elementsTd = el >> elementList("td")
     val title = elementsTd(1).text
     val author = elementsTd(3).text
@@ -28,21 +28,23 @@ class BookSearcher(browser: JsoupBrowser) extends Browser[Book] {
       case Nil => ""
       case l => l.head.attr("href")
     }
-    Book(title, author, "", link)
+    Some(Book(title, author, "", link))
   }
 
-  def findIsbn(book: Book): Book = {
-    val elements = parseLink(book.link).extract(elementList(":containsOwn(ISBN:)"))
-    val siblings: Option[Iterable[Element]] = for {
-      head <- elements.headOption
-      parent <- head.parent
-    } yield parent.siblings
+  def findIsbn(bookOption: Option[Book]): Option[Book] = {
+    bookOption.flatMap { book =>
+      val elements = parseLink(book.link).extract(elementList(":containsOwn(ISBN:)"))
+      val siblings: Option[Iterable[Element]] = for {
+        head <- elements.headOption
+        parent <- head.parent
+      } yield parent.siblings
 
-    siblings match {
-      case None => book
-      case Some(s) => {
-        val isbn: Option[String] = for (h <- s.headOption) yield h.text
-        isbn match { case None => book case Some(i) => book.copy(isbn = i) }
+      siblings match {
+        case None => bookOption
+        case Some(s) => {
+          val isbn: Option[String] = for (h <- s.headOption) yield h.text
+          isbn match { case None => bookOption case Some(i) => Some(book.copy(isbn = i)) }
+        }
       }
     }
   }
