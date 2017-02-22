@@ -24,11 +24,12 @@ class BookSearcher(browser: JsoupBrowser) extends Browser[Book] {
     val elementsTd = el >> elementList("td")
     val title = elementsTd(1).text
     val author = elementsTd(3).text
+    val year = elementsTd(5).text
     val link = elementsTd(1) >> elementList("a") match {
       case Nil => ""
       case l => l.head.attr("href")
     }
-    Some(Book(title, author, "", link))
+    Some(Book(title, author, "", year, link))
   }
 
   def findIsbn(bookOption: Option[Book]): Option[Book] = {

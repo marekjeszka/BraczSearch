@@ -11,7 +11,7 @@ class BookSearcherSpec extends WordSpec with MustMatchers with BrowserParser {
       val tableStandard = """<table><tr><td>1</td><td><a href="http://br-hip.pfsl.poznan.pl/">W godzinie apelu</a></td><td>&nbsp;</td><td>Jabski, Zachariasz S. (1940-2015).</td><td>Czochowa</td><td>1999.</td><td>&nbsp;</td></tr></table>"""
       val place1 = bookSearcher.toBook(parseTable(tableStandard, "tr").head)
 
-      place1.get must be (Book("W godzinie apelu", "Jabski, Zachariasz S. (1940-2015).", "", "http://br-hip.pfsl.poznan.pl/"))
+      place1.get must be (Book("W godzinie apelu", "Jabski, Zachariasz S. (1940-2015).", "", "1999.", "http://br-hip.pfsl.poznan.pl/"))
     }
 
     "parse correct pages" in {
@@ -25,13 +25,13 @@ class BookSearcherSpec extends WordSpec with MustMatchers with BrowserParser {
       val availableBookHtml = prepareStubBrowser(correctHtml)
       val places = getStubbedBookSearcher(availableBookHtml).searchByName("")
 
-      places.head must be (Book("one", "author1", "", ""))
-      places(1) must be (Book("two", "author2", "", "books.com"))
-      places(2) must be (Book("three", "author3", "", ""))
+      places.head must be (Book("one", "author1", "", "1991", ""))
+      places(1) must be (Book("two", "author2", "", "1992", "books.com"))
+      places(2) must be (Book("three", "author3", "", "1993", ""))
     }
 
     "parses pages for ISBN" in {
-      val aBook = Book("title", "author", "", "link.com")
+      val aBook = Book("title", "author", "", "1997", "link.com")
       val htmlISBN =
         """<table><tr><td><a class="normalBlackFont1">ISBN:&nbsp;</a></td>
           |<td><table><tr><td valign="top"><a class="normalBlackFont1">9788380620438</a></td>

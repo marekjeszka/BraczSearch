@@ -54,11 +54,11 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
 
     "should display book names" in {
       when(stubLocator.isIsbn(anyString())).thenReturn(false)
-      when(stubSearcher.searchByName("")).thenReturn(List(Book("title","author","","")))
+      when(stubSearcher.searchByName("")).thenReturn(List(Book("title","author","","1997","")))
 
       val result: Future[Result] = searchController.search("")(FakeRequest())
       val bodyText: String = contentAsString(result)
-      bodyText must (include ("title") and include ("author"))
+      bodyText must (include ("title") and include ("author") and include("1997"))
     }
 
     "should work when accessing via link" in {
