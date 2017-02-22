@@ -6,6 +6,8 @@ import catalog._
 import views.html._
 import play.api.mvc._
 
+import scala.concurrent.Future
+
 @Singleton
 class SearchController @Inject() (bookLocator: BookLocator, bookSearcher: BookSearcher) extends Controller {
 
@@ -20,9 +22,13 @@ class SearchController @Inject() (bookLocator: BookLocator, bookSearcher: BookSe
     }
   }
 
-  def searchByLink() = Action { request =>
-    val link = request.body.asText.getOrElse("")
-    val places = bookLocator.getPlacesGroupedViaLink(link)
-    Ok(Locations.render(places, bookLocator.getBookNameViaLink(link)))
+  def searchByLink(): Action[String] = Action.async(BodyParsers.parse.text) { request =>
+    import play.api.libs.concurrent.Execution.Implicits.defaultContext
+
+    Future {
+      val link = request.body
+      val places = bookLocator.getPlacesGroupedViaLink(link)
+      Ok(Locations.render(places, bookLocator.getBookNameViaLink(link)))
+    }
   }
 }

@@ -6,7 +6,7 @@ import org.mockito.Mockito.when
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play._
 import play.api.mvc._
-import play.api.test.FakeRequest
+import play.api.test._
 import play.api.test.Helpers._
 
 import scala.concurrent.Future
@@ -27,18 +27,18 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       when(stubLocator.getBookName(anyString())).thenReturn(Some(""))
       when(stubLocator.isIsbn(anyString())).thenReturn(true)
 
-      val result: Future[Result] = searchController.search("").apply(FakeRequest())
+      val result: Future[Result] = searchController.search("")(FakeRequest())
 
       val bodyText: String = contentAsString(result)
       bodyText must (
         include(link) and include ("street") and include ("street2") and
-        not include "This book will be available at")
+        not include "will be available at")
     }
 
     "should work with empty results" in {
       when(stubLocator.getPlacesGrouped(anyString())).thenReturn(CatalogResult("",Nil,Nil))
 
-      val result: Future[Result] = searchController.search("").apply(FakeRequest())
+      val result: Future[Result] = searchController.search("")(FakeRequest())
       val bodyText: String = contentAsString(result)
       bodyText must include ("Nothing found")
     }
@@ -47,7 +47,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       when(stubLocator.getPlacesGrouped(anyString())).thenReturn(CatalogResult("",Nil,List(BookLocation("street",false))))
       when(stubLocator.getBookName(anyString())).thenReturn(Some("My book"))
 
-      val result: Future[Result] = searchController.search("").apply(FakeRequest())
+      val result: Future[Result] = searchController.search("")(FakeRequest())
       val bodyText: String = contentAsString(result)
       bodyText must (include ("will be available at") and include ("My book"))
     }
@@ -56,9 +56,32 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       when(stubLocator.isIsbn(anyString())).thenReturn(false)
       when(stubSearcher.searchByName("")).thenReturn(List(Book("title","author","","")))
 
-      val result: Future[Result] = searchController.search("").apply(FakeRequest())
+      val result: Future[Result] = searchController.search("")(FakeRequest())
       val bodyText: String = contentAsString(result)
       bodyText must (include ("title") and include ("author"))
+    }
+
+    "should work when accessing via link" in {
+      val resultLink = "http://bracz.org"
+      val bookLink = "http://book.org"
+      when(stubLocator.getPlacesGroupedViaLink(anyString())).thenReturn(CatalogResult(resultLink,List(aBook1, aBook2),Nil))
+      when(stubLocator.getBookNameViaLink(bookLink)).thenReturn(None)
+
+      val result = searchController.searchByLink()(FakeRequest().withBody(bookLink))
+      val bodyText: String = contentAsString(result)
+      bodyText must (
+        include(resultLink) and include ("street") and include ("street2") and
+          include ("<b>This book</b> is available at") and
+          not include "will be available at")
+    }
+
+    "should handle empty body" in {
+      when(stubLocator.getPlacesGroupedViaLink(anyString())).thenReturn(CatalogResult("",Nil,Nil))
+      when(stubLocator.getBookNameViaLink(anyString())).thenReturn(None)
+
+      val result = searchController.searchByLink()(FakeRequest().withBody(""))
+      val bodyText: String = contentAsString(result)
+      bodyText must include ("Nothing found")
     }
   }
 
@@ -66,13 +89,13 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
     val homeController = new HomeController()
 
     "exist" in {
-      val result = homeController.home().apply(FakeRequest())
+      val result = homeController.home()(FakeRequest())
       result mustNot be (null)
     }
 
     "uses history from cookies" in {
       val withCookies = FakeRequest().withCookies(Cookie("history", "123/456"))
-      val result = homeController.history().apply(withCookies)
+      val result = homeController.history()(withCookies)
       val bodyText: String = contentAsString(result)
       bodyText must (include("123") and include ("456"))
     }
