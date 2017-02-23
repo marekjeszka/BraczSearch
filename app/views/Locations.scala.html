@@ -2,7 +2,11 @@
 
 <div class="container">
 @if(locations.available.isEmpty && locations.taken.isEmpty) {
-    <p>Nothing found</p>
+    <p>Nothing found
+    @if(bookName.isDefined) {
+        for: <b>@bookName.get</b>
+    }
+    </p>
 } else {
     @if(!locations.available.isEmpty) {
         <p><b>@bookName.getOrElse("This book")</b> is available at:</p>

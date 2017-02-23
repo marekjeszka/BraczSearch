@@ -37,10 +37,12 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
 
     "should work with empty results" in {
       when(stubLocator.getPlacesGrouped(anyString())).thenReturn(CatalogResult("",Nil,Nil))
+      when(stubLocator.isIsbn(anyString())).thenReturn(true)
+      when(stubLocator.getBookName(anyString())).thenReturn(None)
 
       val result: Future[Result] = searchController.search("")(FakeRequest())
       val bodyText: String = contentAsString(result)
-      bodyText must include ("Nothing found")
+      bodyText must (include ("Nothing found") and not include "for")
     }
 
     "should work with only taken books" in {

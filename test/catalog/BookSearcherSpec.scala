@@ -17,17 +17,25 @@ class BookSearcherSpec extends WordSpec with MustMatchers with BrowserParser {
     "parse correct pages" in {
       val correctHtml =
         """<table class="tableBackground" cellpadding="3"><tr></tr>
-          |<tr><td></td><td>one</td><td></td><td>author1</td><td></td><td>1991</td><td></td></tr>
-          |<tr><td></td><td><a href="books.com">two</a></td><td></td><td>author2</td><td></td><td>1992</td><td></td></tr>
+          |<tr><td></td><td><a href="books1.com">one</a></td><td></td><td>author1</td><td></td><td>1991</td><td></td></tr>
+          |<tr><td></td><td><a href="books2.com">two</a></td><td></td><td>author2</td><td></td><td>1992</td><td></td></tr>
           |<tr><td></td><td>three</td><td></td><td>author3</td><td></td><td>1993</td><td></td></tr>
           |</table>""".stripMargin
+      val htmlISBN1 =
+        """<table><tr><td><a class="normalBlackFont1">ISBN:&nbsp;</a></td>
+          |<td><table><tr><td valign="top"><a class="normalBlackFont1">9788380620438</a></td>
+          |</tr></table></td></tr></table>""".stripMargin
+      val htmlISBN2 =
+        """<table><tr><td><a class="normalBlackFont1">ISBN:&nbsp;</a></td>
+          |<td><table><tr><td valign="top"><a class="normalBlackFont1">9788380620410</a></td>
+          |</tr></table></td></tr></table>""".stripMargin
 
-      val availableBookHtml = prepareStubBrowser(correctHtml)
+      val availableBookHtml = prepareStubBrowser(correctHtml, ("books1.com", htmlISBN1), ("books2.com", htmlISBN2))
       val places = getStubbedBookSearcher(availableBookHtml).searchByName("")
 
-      places.head must be (Book("one", "author1", "", "1991", ""))
-      places(1) must be (Book("two", "author2", "", "1992", "books.com"))
-      places(2) must be (Book("three", "author3", "", "1993", ""))
+      places.length must be (2)
+      places.head must be (Book("one", "author1", "9788380620438", "1991", "books1.com"))
+      places(1) must be (Book("two", "author2", "9788380620410", "1992", "books2.com"))
     }
 
     "parses pages for ISBN" in {

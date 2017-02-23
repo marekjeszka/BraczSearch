@@ -40,11 +40,10 @@ class BookSearcher(browser: JsoupBrowser) extends Browser[Book] {
         parent <- head.parent
       } yield parent.siblings
 
-      siblings match {
-        case None => bookOption
-        case Some(s) => {
+      siblings flatMap  {
+        s => {
           val isbn: Option[String] = for (h <- s.headOption) yield h.text
-          isbn match { case None => bookOption case Some(i) => Some(book.copy(isbn = i)) }
+          isbn flatMap { i => Some(book.copy(isbn = i)) }
         }
       }
     }

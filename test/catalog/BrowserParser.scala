@@ -11,13 +11,14 @@ trait BrowserParser extends MockitoSugar {
     JsoupBrowser().parseString(html) >> elementList(htmlElement)
   }
 
-  protected def prepareStubBrowser(html: String): JsoupBrowser = {
+  protected def prepareStubBrowser(defaultHtml: String, urlHtml: (String,String)*): JsoupBrowser = {
     import org.mockito.Matchers.anyString
     import org.mockito.Mockito.when
 
     val stubBrowser = mock[JsoupBrowser]
 
-    when(stubBrowser.get(anyString())).thenReturn(JsoupBrowser().parseString(html))
+    when(stubBrowser.get(anyString())).thenReturn(JsoupBrowser().parseString(defaultHtml))
+    urlHtml.foreach(u => when(stubBrowser.get(u._1)).thenReturn(JsoupBrowser().parseString(u._2)))
     stubBrowser
   }
 }
