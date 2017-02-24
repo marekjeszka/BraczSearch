@@ -12,13 +12,14 @@ import scala.concurrent.Future
 class SearchController @Inject() (bookLocator: BookLocator, bookSearcher: BookSearcher) extends Controller {
 
   def search(inputText: String) = Action { request =>
-    val history = HistoryCookie(request).addItem(inputText)
-    if (bookLocator.isIsbn(inputText)) {
-      val places = bookLocator.getPlacesGrouped(inputText)
-      Ok(Locations.render(places, bookLocator.getBookName(inputText))).withCookies(history.asCookie())
-    } else {
-      val books = bookSearcher.searchByName(inputText)
-      Ok(Books.render(books))
+    ISBN(inputText) match {
+      case CorrectISBN(isbn) =>
+        val history = HistoryCookie(request).addItem(isbn)
+        val places = bookLocator.getPlacesGrouped(isbn)
+        Ok(Locations.render(places, bookLocator.getBookName(isbn))).withCookies(history.asCookie())
+      case IncorrectISBN =>
+        val books = bookSearcher.searchByName(inputText)
+        Ok(Books.render(books))
     }
   }
 

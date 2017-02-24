@@ -29,7 +29,7 @@ class BookSearcher(browser: JsoupBrowser) extends Browser[Book] {
       case Nil => ""
       case l => l.head.attr("href")
     }
-    Some(Book(title, author, "", year, link))
+    Some(Book(title, author, IncorrectISBN, year, link))
   }
 
   def findIsbn(bookOption: Option[Book]): Option[Book] = {
@@ -43,7 +43,7 @@ class BookSearcher(browser: JsoupBrowser) extends Browser[Book] {
       siblings flatMap  {
         s => {
           val isbn: Option[String] = for (h <- s.headOption) yield h.text
-          isbn flatMap { i => Some(book.copy(isbn = i)) }
+          isbn flatMap { i => Some(book.copy(isbn = ISBN(i))) }
         }
       }
     }

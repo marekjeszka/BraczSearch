@@ -25,9 +25,8 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       val link = "http://bracz.org"
       when(stubLocator.getPlacesGrouped(anyString())).thenReturn(CatalogResult(link,List(aBook1, aBook2),Nil))
       when(stubLocator.getBookName(anyString())).thenReturn(Some(""))
-      when(stubLocator.isIsbn(anyString())).thenReturn(true)
 
-      val result: Future[Result] = searchController.search("")(FakeRequest())
+      val result: Future[Result] = searchController.search("9788374800808")(FakeRequest())
 
       val bodyText: String = contentAsString(result)
       bodyText must (
@@ -37,10 +36,11 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
 
     "should work with empty results" in {
       when(stubLocator.getPlacesGrouped(anyString())).thenReturn(CatalogResult("",Nil,Nil))
-      when(stubLocator.isIsbn(anyString())).thenReturn(true)
       when(stubLocator.getBookName(anyString())).thenReturn(None)
 
-      val result: Future[Result] = searchController.search("")(FakeRequest())
+      val m = mock[ISBN]
+
+      val result: Future[Result] = searchController.search("9788374800808")(FakeRequest())
       val bodyText: String = contentAsString(result)
       bodyText must (include ("Nothing found") and not include "for")
     }
@@ -49,14 +49,13 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       when(stubLocator.getPlacesGrouped(anyString())).thenReturn(CatalogResult("",Nil,List(BookLocation("street",false))))
       when(stubLocator.getBookName(anyString())).thenReturn(Some("My book"))
 
-      val result: Future[Result] = searchController.search("")(FakeRequest())
+      val result: Future[Result] = searchController.search("9788374800808")(FakeRequest())
       val bodyText: String = contentAsString(result)
       bodyText must (include ("will be available at") and include ("My book"))
     }
 
     "should display book names" in {
-      when(stubLocator.isIsbn(anyString())).thenReturn(false)
-      when(stubSearcher.searchByName("")).thenReturn(List(Book("title","author","","1997","")))
+      when(stubSearcher.searchByName("")).thenReturn(List(Book("title","author",IncorrectISBN,"1997","")))
 
       val result: Future[Result] = searchController.search("")(FakeRequest())
       val bodyText: String = contentAsString(result)
