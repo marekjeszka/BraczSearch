@@ -25,6 +25,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       val link = "http://bracz.org"
       when(stubLocator.getPlacesGrouped(anyString())).thenReturn(CatalogResult(link,List(aBook1, aBook2),Nil))
       when(stubLocator.getBookName(anyString())).thenReturn(Some(""))
+      when(stubLocator.isMultipleEntries(anyString())).thenReturn((false, Nil))
 
       val result: Future[Result] = searchController.search("9788374800808")(FakeRequest())
 
@@ -37,6 +38,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
     "should work with empty results" in {
       when(stubLocator.getPlacesGrouped(anyString())).thenReturn(CatalogResult("",Nil,Nil))
       when(stubLocator.getBookName(anyString())).thenReturn(None)
+      when(stubLocator.isMultipleEntries(anyString())).thenReturn((false, Nil))
 
       val m = mock[ISBN]
 
@@ -48,6 +50,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
     "should work with only taken books" in {
       when(stubLocator.getPlacesGrouped(anyString())).thenReturn(CatalogResult("",Nil,List(BookLocation("street",false))))
       when(stubLocator.getBookName(anyString())).thenReturn(Some("My book"))
+      when(stubLocator.isMultipleEntries(anyString())).thenReturn((false, Nil))
 
       val result: Future[Result] = searchController.search("9788374800808")(FakeRequest())
       val bodyText: String = contentAsString(result)
@@ -83,6 +86,15 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       val result = searchController.searchByLink()(FakeRequest().withBody(""))
       val bodyText: String = contentAsString(result)
       bodyText must include ("Nothing found")
+    }
+
+    "should work for multiple entries" in {
+      when(stubLocator.isMultipleEntries(anyString()))
+        .thenReturn((true, List(Book("t1", "a1", IncorrectISBN,"1990", ""))))
+
+      val result: Future[Result] = searchController.search("9788374800808")(FakeRequest())
+      val bodyText: String = contentAsString(result)
+      bodyText must (include ("t1") and include ("a1") and include("1990"))
     }
   }
 

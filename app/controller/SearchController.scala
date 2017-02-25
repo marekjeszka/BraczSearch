@@ -15,8 +15,13 @@ class SearchController @Inject() (bookLocator: BookLocator, bookSearcher: BookSe
     ISBN(inputText) match {
       case CorrectISBN(isbn) =>
         val history = HistoryCookie(request).addItem(isbn)
-        val places = bookLocator.getPlacesGrouped(isbn)
-        Ok(Locations.render(places, bookLocator.getBookName(isbn))).withCookies(history.asCookie())
+        val multipleEntries = bookLocator.isMultipleEntries(isbn)
+        if (multipleEntries._1)
+          Ok(Books.render(multipleEntries._2))
+        else {
+          val places = bookLocator.getPlacesGrouped(isbn)
+          Ok(Locations.render(places, bookLocator.getBookName(isbn))).withCookies(history.asCookie())
+        }
       case IncorrectISBN =>
         val books = bookSearcher.searchByName(inputText)
         Ok(Books.render(books))

@@ -1,5 +1,6 @@
 package catalog
 
+import java.net.URLDecoder
 import javax.inject.Singleton
 
 import com.typesafe.config.ConfigFactory
@@ -18,6 +19,32 @@ class BookLocator(browser: JsoupBrowser) extends Browser[BookLocation] {
   override protected def getBrowser: JsoupBrowser = browser
 
   def this() = this(JsoupBrowser())
+
+  /**
+    * Checks if there is more than one entry for given ISBN.
+    * @param isbn correct ISBN
+    * @return true with list of entries or false with Nil
+    */
+  def isMultipleEntries(isbn: String): (Boolean, List[Book]) = {
+    val entries =
+      getBrowser
+        .get(formatLink(isbn))
+        .extract(elementList(".mediumBoldAnchor"))
+        .flatMap(
+          e => {
+            val link = e.attr("href").split("'").find(_.startsWith("http"))
+            link match {
+              case None => None
+              case Some(l) => Some(Book(e.innerHtml, "", ISBN(isbn), "", URLDecoder.decode(l, "UTF-8")))
+            }
+          })
+    if (entries.nonEmpty) {
+
+      (true, entries)
+    } else {
+      (false, Nil)
+    }
+  }
 
   def getAllPlaces(link: String): List[BookLocation] =
     getElements(link)(toPlace).flatten.sorted(AvailabilityOrdering)

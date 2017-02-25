@@ -34,7 +34,7 @@ class BookLocatorSpec extends FlatSpec with Matchers with BrowserParser {
     new BookLocator(stubBrowser)
   }
 
-  "BookLocator" should "handle incorrect pages" in {
+  it should "handle incorrect pages" in {
     val emptyHtml = prepareStubBrowser("<html></html>")
     getStubbedBookLocator(emptyHtml).getAllPlaces(page) should be (List())
 
@@ -48,7 +48,7 @@ class BookLocatorSpec extends FlatSpec with Matchers with BrowserParser {
     getStubbedBookLocator(partialTable).getAllPlaces(page) should be (List())
   }
 
-  "BookLocator" should "parse correct page" in {
+  it should "parse correct page" in {
     val correctHtml =
       """<table class="tableBackground" cellpadding="3"><tr></tr>
         |<tr><td>F10 Robocza</td><td></td><td></td><td></td><td>Wypożyczane na 30 dni</td><td>Na półce</td><td></td></tr>
@@ -65,7 +65,7 @@ class BookLocatorSpec extends FlatSpec with Matchers with BrowserParser {
     places.taken(1) should be (BookLocation("F12 Rolna", false))
   }
 
-  "BookLocator" should "find book name" in {
+  it should "find book name" in {
     val html =
       """<table class="tableBackground" cellpadding="3"><tr>
         |<td><a class="largeAnchor" title="Book name" href="test123.com">test123</a></td>
@@ -74,5 +74,33 @@ class BookLocatorSpec extends FlatSpec with Matchers with BrowserParser {
     val book = getStubbedBookLocator(prepareStubBrowser(html)).getBookName(page)
 
     book.get should be ("Book name")
+  }
+
+  it should "handle multiple entries" in {
+    val html =
+      """<table class="tableBackground" cellpadding="3"><tr>
+        |<td><a class="mediumBoldAnchor" href="javascript:buildNewList('http%3A%2F%2Flink1.com','true')">book123</a></td>
+        |<td><a class="mediumBoldAnchor" href="javascript:buildNewList('http%3A%2F%2Flink2.com','true')">book456</a></td>
+        |</tr></table>"""
+
+    val books = getStubbedBookLocator(prepareStubBrowser(html)).isMultipleEntries("9788374800808")
+
+    books._1 should be (true)
+    books._2.length should be (2)
+    books._2.head should be (Book("book123","",ISBN("9788374800808"),"","http://link1.com"))
+    books._2(1)   should be (Book("book456","",ISBN("9788374800808"),"","http://link2.com"))
+  }
+
+  it should "handle single entries" in {
+    val html =
+      """<table class="tableBackground" cellpadding="3"><tr>
+        |<td><a href="javascript:buildNewList('http%3A%2F%2Flink1.com','true')">book123</a></td>
+        |<td><a href="javascript:buildNewList('http%3A%2F%2Flink2.com','true')">book456</a></td>
+        |</tr></table>"""
+
+    val books = getStubbedBookLocator(prepareStubBrowser(html)).isMultipleEntries("9788374800808")
+
+    books._1 should be (false)
+    books._2 should be (Nil)
   }
 }
