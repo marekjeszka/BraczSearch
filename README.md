@@ -13,4 +13,15 @@ BraczSearch is written in Scala 2.11 and uses Play 2.5.
 
 ### Running locally
 
+Using SBT directly:
+
 `sbt run`
+
+Using Docker:
+
+`docker run -it -p 80:9000 marekjeszka/braczsearch`
+
+`docker build -t marekjeszka/braczsearch`
+
+Application will be available at `localhost:9000`.
+
