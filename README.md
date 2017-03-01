@@ -19,9 +19,9 @@ Using SBT directly:
 
 Using Docker:
 
-`docker run -it -p 80:9000 marekjeszka/braczsearch`
+`docker build . -t marekjeszka/braczsearch`
 
-`docker build -t marekjeszka/braczsearch`
+`docker run -it -p 80:9000 marekjeszka/braczsearch`
 
 Application will be available at `localhost:9000`.
 
