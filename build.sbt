@@ -1,9 +1,14 @@
 name := "BraczSearch"
 
-version := "1.0"
+version := "1.1"
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
+  .enablePlugins(BuildInfoPlugin)
+  .settings(
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := "catalog"
+  )
 
 coverageExcludedFiles := ".*Routes.*"
 

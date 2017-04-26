@@ -5,3 +5,5 @@ GET     /search/              controller.SearchController.search(inputText: Stri
 POST    /searchByLink/        controller.SearchController.searchByLink
 
 GET     /history/             controller.HomeController.history
+
+GET     /version/             controller.VersionController.version
