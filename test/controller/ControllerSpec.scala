@@ -113,4 +113,13 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       bodyText must (include("123") and include ("456"))
     }
   }
+
+  "version endpoint" should {
+    val versionController = new VersionController()
+
+    "displays version" in {
+      val result = versionController.version()(FakeRequest())
+      contentAsString(result) must fullyMatch regex """\d[.]\d"""
+    }
+  }
 }

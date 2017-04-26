@@ -4,6 +4,11 @@ version := "1.0"
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
+  .enablePlugins(BuildInfoPlugin)
+  .settings(
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := "catalog"
+  )
 
 coverageExcludedFiles := ".*Routes.*"
 
