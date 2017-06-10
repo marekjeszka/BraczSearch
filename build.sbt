@@ -1,6 +1,6 @@
 name := "BraczSearch"
 
-version := "1.2"
+version := "1.3"
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
