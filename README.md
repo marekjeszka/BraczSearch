@@ -25,3 +25,6 @@ Using Docker:
 
 Application will be available at `localhost:9000`.
 
+### Heroku deployment
+
+`sbt stage deployHeroku`
