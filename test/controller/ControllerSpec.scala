@@ -13,6 +13,8 @@ import scala.concurrent.Future
 
 class ControllerSpec extends PlaySpec with Results with MockitoSugar {
 
+  private val ValidISBN = "9788374800808"
+
   private val stubLocator = mock[BookLocator]
   private val stubSearcher = mock[BookSearcher]
 
@@ -27,9 +29,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       when(stubLocator.getBookName(anyString())).thenReturn(Some(""))
       when(stubLocator.isMultipleEntries(anyString())).thenReturn((false, Nil))
 
-      val result: Future[Result] = searchController.search("9788374800808")(FakeRequest())
-
-      val bodyText: String = contentAsString(result)
+      val bodyText: String = contentAsString(searchController.search(ValidISBN)(FakeRequest()))
       bodyText must (
         include(link) and include ("street") and include ("street2") and
         not include "will be available at")
@@ -40,10 +40,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       when(stubLocator.getBookName(anyString())).thenReturn(None)
       when(stubLocator.isMultipleEntries(anyString())).thenReturn((false, Nil))
 
-      val m = mock[ISBN]
-
-      val result: Future[Result] = searchController.search("9788374800808")(FakeRequest())
-      val bodyText: String = contentAsString(result)
+      val bodyText: String = contentAsString(searchController.search(ValidISBN)(FakeRequest()))
       bodyText must (include ("Nothing found") and not include "for")
     }
 
@@ -52,17 +49,25 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       when(stubLocator.getBookName(anyString())).thenReturn(Some("My book"))
       when(stubLocator.isMultipleEntries(anyString())).thenReturn((false, Nil))
 
-      val result: Future[Result] = searchController.search("9788374800808")(FakeRequest())
-      val bodyText: String = contentAsString(result)
+      val bodyText: String = contentAsString(searchController.search(ValidISBN)(FakeRequest()))
       bodyText must (include ("will be available at") and include ("My book"))
     }
 
     "should display book names" in {
       when(stubSearcher.searchByName("")).thenReturn(List(Book("title","author",IncorrectISBN,"1997","")))
 
-      val result: Future[Result] = searchController.search("")(FakeRequest())
-      val bodyText: String = contentAsString(result)
+      val bodyText: String = contentAsString(searchController.search("")(FakeRequest()))
       bodyText must (include ("title") and include ("author") and include("1997"))
+    }
+
+    "should not display information about date when date is not available" in {
+      when(stubLocator.getPlacesGrouped(anyString())).thenReturn(
+        CatalogResult("",Nil, List(BookLocation("5th Avenue",false), BookLocation("6th Avenue",false,""))))
+      when(stubLocator.getBookName(anyString())).thenReturn(Some("My book"))
+      when(stubLocator.isMultipleEntries(anyString())).thenReturn((false, Nil))
+
+      val bodyText: String = contentAsString(searchController.search(ValidISBN)(FakeRequest()))
+      bodyText must (not include ", on")
     }
 
     "should work when accessing via link" in {
@@ -71,8 +76,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       when(stubLocator.getPlacesGroupedViaLink(anyString())).thenReturn(CatalogResult(resultLink,List(aBook1, aBook2),Nil))
       when(stubLocator.getBookNameViaLink(bookLink)).thenReturn(None)
 
-      val result = searchController.searchByLink()(FakeRequest().withBody(bookLink))
-      val bodyText: String = contentAsString(result)
+      val bodyText: String = contentAsString(searchController.searchByLink()(FakeRequest().withBody(bookLink)))
       bodyText must (
         include(resultLink) and include ("street") and include ("street2") and
           include ("<b>This book</b> is available at") and
@@ -83,8 +87,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       when(stubLocator.getPlacesGroupedViaLink(anyString())).thenReturn(CatalogResult("",Nil,Nil))
       when(stubLocator.getBookNameViaLink(anyString())).thenReturn(None)
 
-      val result = searchController.searchByLink()(FakeRequest().withBody(""))
-      val bodyText: String = contentAsString(result)
+      val bodyText: String = contentAsString(searchController.searchByLink()(FakeRequest().withBody("")))
       bodyText must include ("Nothing found")
     }
 
@@ -92,8 +95,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       when(stubLocator.isMultipleEntries(anyString()))
         .thenReturn((true, List(Book("t1", "a1", IncorrectISBN,"1990", ""))))
 
-      val result: Future[Result] = searchController.search("9788374800808")(FakeRequest())
-      val bodyText: String = contentAsString(result)
+      val bodyText: String = contentAsString(searchController.search(ValidISBN)(FakeRequest()))
       bodyText must (include ("t1") and include ("a1") and include("1990"))
     }
   }
@@ -108,8 +110,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
 
     "uses history from cookies" in {
       val withCookies = FakeRequest().withCookies(Cookie("history", "123/456"))
-      val result = homeController.history()(withCookies)
-      val bodyText: String = contentAsString(result)
+      val bodyText: String = contentAsString(homeController.history()(withCookies))
       bodyText must (include("123") and include ("456"))
     }
   }
@@ -118,8 +119,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
     val versionController = new VersionController()
 
     "displays version" in {
-      val result = versionController.version()(FakeRequest())
-      contentAsString(result) must fullyMatch regex """\d[.]\d"""
+      contentAsString(versionController.version()(FakeRequest())) must fullyMatch regex """\d[.]\d"""
     }
   }
 }
