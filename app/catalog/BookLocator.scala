@@ -53,24 +53,31 @@ class BookLocator(browser: JsoupBrowser) extends Browser[BookLocation] {
 
   def getPlacesGroupedViaLink(link: String): CatalogResult = {
     val allPlaces = getAllPlaces(link)
-    CatalogResult(link, allPlaces.filter(_.available), allPlaces.filter(!_.available))
+    CatalogResult(link,
+      allPlaces.collect{case x: CurrentBookLocation => x},
+      allPlaces.collect{case x: FutureBookLocation => x}
+    )
   }
 
   def toPlace(el: Element): Option[BookLocation] = {
     val elementsTd = el >> elementList("td")
 
-    if (elementsTd.length < 7)
-      return None
+    if (elementsTd.length >= 7) {
+      val available: Boolean = elementsTd(4).text.toLowerCase.contains("wypożyczane") &&
+        "Na półce".equals(elementsTd(5).text)
 
-    val available: Boolean = elementsTd(4).text.toLowerCase.contains("wypożyczane") &&
-      "Na półce".equals(elementsTd(5).text)
-
-    val date = elementsTd(6).text
-
-    Some(BookLocation(
-      elementsTd.head.text,
-      available,
-      if (date.matches("\\d{2}/\\d{2}/\\d{4}")) date else null))
+      val address = elementsTd.head.text
+      val date = elementsTd(6).text
+  
+      Some {
+        if (available)
+          CurrentBookLocation(address)
+        else
+          FutureBookLocation(address, date)
+      }
+    } else {
+      None
+    }
   }
 
   def getBookName(isbn: String): Option[String] =
@@ -81,13 +88,22 @@ class BookLocator(browser: JsoupBrowser) extends Browser[BookLocation] {
 }
 
 object AvailabilityOrdering extends Ordering[BookLocation] {
+
+  def compareFutureBookLocation(a: FutureBookLocation, b: FutureBookLocation): Int = {
+    (a.returnDate, b.returnDate) match {
+      case (None, _) => 1
+      case (_, None) => -1
+      case (Some(x),Some(y)) => x.compareTo(y)
+    }
+  }
+
   override def compare(x: BookLocation, y: BookLocation): Int = {
-    (x.returnDate, y.returnDate) match {
-      case (None,_) => 1
-      case (_,None) => -1
-      case (Some(a),Some(b)) => a.compareTo(b)
+    (x, y) match {
+      case (_: CurrentBookLocation, _) => 1
+      case (_, _: CurrentBookLocation) => -1
+      case (a: FutureBookLocation,b: FutureBookLocation) => compareFutureBookLocation(a,b)
     }
   }
 }
 
-case class CatalogResult(link: String, available: List[BookLocation], taken: List[BookLocation])
+case class CatalogResult(link: String, available: List[CurrentBookLocation], taken: List[FutureBookLocation])

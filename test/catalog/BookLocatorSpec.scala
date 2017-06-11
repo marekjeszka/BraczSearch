@@ -12,22 +12,22 @@ class BookLocatorSpec extends FlatSpec with Matchers with BrowserParser {
     val tableStandard = """<table><tr><td><a title="Egzemplarze">Muszkowska</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Blokada</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"""
     val place1 = bookLocator.toPlace(parseTable(tableStandard, "tr").head)
 
-    place1.get should be (BookLocation("Muszkowska", false))
+    place1.get should be (FutureBookLocation("Muszkowska"))
 
     val tableReadingRoom = """<table><tr><td><a title="Egzemplarze">Rolna</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Dostępny</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"""
     val place2 = bookLocator.toPlace(parseTable(tableReadingRoom, "tr").head)
 
-    place2.get should be (BookLocation("Rolna", false))
+    place2.get should be (FutureBookLocation("Rolna"))
 
     val tableAvailable = """<table><tr><td><a title="Egzemplarze">Rolna</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Na półce</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"""
     val place3 = bookLocator.toPlace(parseTable(tableAvailable, "tr").head)
 
-    place3.get should be (BookLocation("Rolna", true))
+    place3.get should be (CurrentBookLocation("Rolna"))
 
     val tableTaken = """<table><tr><td><a title="Egzemplarze">Błękitna</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Wypo&#380;yczony</a></td><td>04/01/2017</td><td><a>Dodaj</a></td></tr></table>"""
     val place4 = bookLocator.toPlace(parseTable(tableTaken, "tr").head)
 
-    place4.get should be (BookLocation("Błękitna", false, "04/01/2017"))
+    place4.get should be (FutureBookLocation("Błękitna", "04/01/2017"))
   }
 
   private def getStubbedBookLocator(stubBrowser: JsoupBrowser) = {
@@ -60,9 +60,9 @@ class BookLocatorSpec extends FlatSpec with Matchers with BrowserParser {
     val places = getStubbedBookLocator(availableBookHtml).getPlacesGrouped(page)
     places.available.length should be (1)
     places.taken.length should be (2)
-    places.available.head should be (BookLocation("F10 Robocza", true))
-    places.taken.head should be (BookLocation("F11 Marcinkowskiego", false))
-    places.taken(1) should be (BookLocation("F12 Rolna", false))
+    places.available.head should be (CurrentBookLocation("F10 Robocza"))
+    places.taken.head should be (FutureBookLocation("F11 Marcinkowskiego"))
+    places.taken(1) should be (FutureBookLocation("F12 Rolna"))
   }
 
   it should "find book name" in {

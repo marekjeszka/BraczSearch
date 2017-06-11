@@ -22,7 +22,7 @@
             @for(p <- locations.taken) {
             <li>
                 @if(p.returnDate.nonEmpty) {
-                @p.address, on @BookLocation.dateAsString(p.returnDate)
+                @p.address, on @FutureBookLocation.dateAsString(p.returnDate)
                 } else {
                 @p.address
                 }

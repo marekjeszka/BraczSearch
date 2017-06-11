@@ -6,10 +6,8 @@ import org.mockito.Mockito.when
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play._
 import play.api.mvc._
-import play.api.test._
 import play.api.test.Helpers._
-
-import scala.concurrent.Future
+import play.api.test._
 
 class ControllerSpec extends PlaySpec with Results with MockitoSugar {
 
@@ -20,8 +18,8 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
 
   "'search' endpoint" should {
     val searchController = new SearchController(stubLocator, stubSearcher)
-    val aBook1 = BookLocation("street", true)
-    val aBook2 = BookLocation("street2", true)
+    val aBook1 = CurrentBookLocation("street")
+    val aBook2 = CurrentBookLocation("street2")
 
     "should display link and books" in {
       val link = "http://bracz.org"
@@ -45,7 +43,8 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
     }
 
     "should work with only taken books" in {
-      when(stubLocator.getPlacesGrouped(anyString())).thenReturn(CatalogResult("",Nil,List(BookLocation("street",false))))
+      when(stubLocator.getPlacesGrouped(anyString())).thenReturn(
+        CatalogResult("",Nil,List(FutureBookLocation("street"))))
       when(stubLocator.getBookName(anyString())).thenReturn(Some("My book"))
       when(stubLocator.isMultipleEntries(anyString())).thenReturn((false, Nil))
 
@@ -62,7 +61,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
 
     "should not display information about date when date is not available" in {
       when(stubLocator.getPlacesGrouped(anyString())).thenReturn(
-        CatalogResult("",Nil, List(BookLocation("5th Avenue",false), BookLocation("6th Avenue",false,""))))
+        CatalogResult("",Nil, List(FutureBookLocation("5th Avenue"), FutureBookLocation("6th Avenue",""))))
       when(stubLocator.getBookName(anyString())).thenReturn(Some("My book"))
       when(stubLocator.isMultipleEntries(anyString())).thenReturn((false, Nil))
 
