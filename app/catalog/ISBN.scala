@@ -2,9 +2,7 @@ package catalog
 
 sealed abstract class ISBN
 
-final case class CorrectISBN(isbn: String) extends ISBN {
-  def get(): String = isbn
-}
+final case class CorrectISBN(isbn: String) extends ISBN
 case object IncorrectISBN extends ISBN
 
 object ISBN {
