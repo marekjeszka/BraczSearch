@@ -55,7 +55,8 @@ class BookLocator(browser: JsoupBrowser) extends Browser[BookLocation] {
     val allPlaces = getAllPlaces(link)
     CatalogResult(link,
       allPlaces.collect{case x: CurrentBookLocation => x},
-      allPlaces.collect{case x: FutureBookLocation => x}
+      allPlaces.collect{case x: FutureBookLocation => x},
+      allPlaces.collect{case x: IncompleteBookLocation => x}
     )
   }
 
@@ -68,7 +69,7 @@ class BookLocator(browser: JsoupBrowser) extends Browser[BookLocation] {
 
       val address = elementsTd.head.text
       val date = elementsTd(6).text
-  
+
       Some {
         if (available)
           CurrentBookLocation(address)
@@ -89,21 +90,18 @@ class BookLocator(browser: JsoupBrowser) extends Browser[BookLocation] {
 
 object AvailabilityOrdering extends Ordering[BookLocation] {
 
-  def compareFutureBookLocation(a: FutureBookLocation, b: FutureBookLocation): Int = {
-    (a.returnDate, b.returnDate) match {
-      case (None, _) => 1
-      case (_, None) => -1
-      case (Some(x),Some(y)) => x.compareTo(y)
-    }
-  }
-
   override def compare(x: BookLocation, y: BookLocation): Int = {
     (x, y) match {
       case (_: CurrentBookLocation, _) => 1
       case (_, _: CurrentBookLocation) => -1
-      case (a: FutureBookLocation,b: FutureBookLocation) => compareFutureBookLocation(a,b)
+      case (_: IncompleteBookLocation, _) => 1
+      case (_, _: IncompleteBookLocation) => -1
+      case (a: FutureBookLocation,b: FutureBookLocation) => a.returnDate.compareTo(b.returnDate)
     }
   }
 }
 
-case class CatalogResult(link: String, available: List[CurrentBookLocation], taken: List[FutureBookLocation])
+case class CatalogResult(link: String,
+                         available: List[CurrentBookLocation],
+                         taken: List[FutureBookLocation],
+                         incomplete: List[IncompleteBookLocation])

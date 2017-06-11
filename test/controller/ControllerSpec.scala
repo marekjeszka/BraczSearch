@@ -1,6 +1,7 @@
 package controller
 
 import catalog._
+import org.joda.time.DateTime
 import org.mockito.Matchers._
 import org.mockito.Mockito.when
 import org.scalatest.mock.MockitoSugar
@@ -23,7 +24,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
 
     "should display link and books" in {
       val link = "http://bracz.org"
-      when(stubLocator.getPlacesGrouped(anyString())).thenReturn(CatalogResult(link,List(aBook1, aBook2),Nil))
+      when(stubLocator.getPlacesGrouped(anyString())).thenReturn(CatalogResult(link,List(aBook1, aBook2),Nil,Nil))
       when(stubLocator.getBookName(anyString())).thenReturn(Some(""))
       when(stubLocator.isMultipleEntries(anyString())).thenReturn((false, Nil))
 
@@ -34,7 +35,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
     }
 
     "should work with empty results" in {
-      when(stubLocator.getPlacesGrouped(anyString())).thenReturn(CatalogResult("",Nil,Nil))
+      when(stubLocator.getPlacesGrouped(anyString())).thenReturn(CatalogResult("",Nil,Nil,Nil))
       when(stubLocator.getBookName(anyString())).thenReturn(None)
       when(stubLocator.isMultipleEntries(anyString())).thenReturn((false, Nil))
 
@@ -44,7 +45,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
 
     "should work with only taken books" in {
       when(stubLocator.getPlacesGrouped(anyString())).thenReturn(
-        CatalogResult("",Nil,List(FutureBookLocation("street"))))
+        CatalogResult("",Nil,List(FutureBookLocation("street",DateTime.now())),Nil))
       when(stubLocator.getBookName(anyString())).thenReturn(Some("My book"))
       when(stubLocator.isMultipleEntries(anyString())).thenReturn((false, Nil))
 
@@ -59,20 +60,20 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
       bodyText must (include ("title") and include ("author") and include("1997"))
     }
 
-    "should not display information about date when date is not available" in {
+    "should display incomplete locations" in {
       when(stubLocator.getPlacesGrouped(anyString())).thenReturn(
-        CatalogResult("",Nil, List(FutureBookLocation("5th Avenue"), FutureBookLocation("6th Avenue",""))))
+        CatalogResult("",Nil, Nil, List(IncompleteBookLocation("5th Avenue"),IncompleteBookLocation("6th Avenue"))))
       when(stubLocator.getBookName(anyString())).thenReturn(Some("My book"))
       when(stubLocator.isMultipleEntries(anyString())).thenReturn((false, Nil))
 
       val bodyText: String = contentAsString(searchController.search(ValidISBN)(FakeRequest()))
-      bodyText must (not include ", on")
+      bodyText must (include ("5th Avenue") and include ("6th Avenue") and include ("Other locations"))
     }
 
     "should work when accessing via link" in {
       val resultLink = "http://bracz.org"
       val bookLink = "http://book.org"
-      when(stubLocator.getPlacesGroupedViaLink(anyString())).thenReturn(CatalogResult(resultLink,List(aBook1, aBook2),Nil))
+      when(stubLocator.getPlacesGroupedViaLink(anyString())).thenReturn(CatalogResult(resultLink,List(aBook1, aBook2),Nil,Nil))
       when(stubLocator.getBookNameViaLink(bookLink)).thenReturn(None)
 
       val bodyText: String = contentAsString(searchController.searchByLink()(FakeRequest().withBody(bookLink)))
@@ -83,7 +84,7 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
     }
 
     "should handle empty body" in {
-      when(stubLocator.getPlacesGroupedViaLink(anyString())).thenReturn(CatalogResult("",Nil,Nil))
+      when(stubLocator.getPlacesGroupedViaLink(anyString())).thenReturn(CatalogResult("",Nil,Nil,Nil))
       when(stubLocator.getBookNameViaLink(anyString())).thenReturn(None)
 
       val bodyText: String = contentAsString(searchController.searchByLink()(FakeRequest().withBody("")))

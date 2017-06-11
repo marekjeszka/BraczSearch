@@ -11,26 +11,22 @@ sealed trait BookLocation {
 
 case class CurrentBookLocation(address: String) extends BookLocation
 
-case class FutureBookLocation(address: String, returnDate: Option[DateTime])
+case class FutureBookLocation(address: String, returnDate: DateTime)
 extends BookLocation {
-  override def toString: String = address + FutureBookLocation.dateAsString(returnDate)
+  override def toString: String = s"$address ${FutureBookLocation.dateAsString(returnDate)}"
 }
 
 object FutureBookLocation {
   private lazy val formatter = DateTimeFormat.forPattern(ConfigFactory.load().getString("braczsearch.dateFormat"))
 
-  def dateAsString(date: Option[DateTime]): String = date match {
-    case None => ""
-    case Some(d) => " " + formatter.print(d)
-  }
+  def dateAsString(date: DateTime): String = formatter.print(date)
 
-  def apply(address: String): FutureBookLocation = FutureBookLocation(address, None)
-
-  def apply(address: String, returnDate: String): FutureBookLocation = {
-    val date: Option[DateTime] = Try(formatter.parseDateTime(returnDate)) match {
-      case Failure(_) => None
-      case Success(t) => Option(t)
+  def apply(address: String, returnDate: String): BookLocation = {
+    Try(formatter.parseDateTime(returnDate)) match {
+      case Failure(_) => IncompleteBookLocation(address)
+      case Success(t) => FutureBookLocation(address, t)
     }
-    FutureBookLocation(address, date)
   }
 }
+
+case class IncompleteBookLocation(address: String) extends BookLocation

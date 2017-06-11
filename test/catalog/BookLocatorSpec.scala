@@ -12,12 +12,12 @@ class BookLocatorSpec extends FlatSpec with Matchers with BrowserParser {
     val tableStandard = """<table><tr><td><a title="Egzemplarze">Muszkowska</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Blokada</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"""
     val place1 = bookLocator.toPlace(parseTable(tableStandard, "tr").head)
 
-    place1.get should be (FutureBookLocation("Muszkowska"))
+    place1.get should be (IncompleteBookLocation("Muszkowska"))
 
     val tableReadingRoom = """<table><tr><td><a title="Egzemplarze">Rolna</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Dostępny</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"""
     val place2 = bookLocator.toPlace(parseTable(tableReadingRoom, "tr").head)
 
-    place2.get should be (FutureBookLocation("Rolna"))
+    place2.get should be (IncompleteBookLocation("Rolna"))
 
     val tableAvailable = """<table><tr><td><a title="Egzemplarze">Rolna</a></td><td><a title="Egzemplarze">Literatura</a></td><td><a title="Egzemplarze">16F/29912</a></td><td><a title="Egzemplarze">821.111-3</a></td><td><a title="Egzemplarze">wypo&#380;yczane</a></td><td><a title="Egzemplarze">Na półce</a></td><td>&nbsp;</td><td><a>Dodaj</a></td></tr></table>"""
     val place3 = bookLocator.toPlace(parseTable(tableAvailable, "tr").head)
@@ -59,10 +59,10 @@ class BookLocatorSpec extends FlatSpec with Matchers with BrowserParser {
     val availableBookHtml = prepareStubBrowser(correctHtml)
     val places = getStubbedBookLocator(availableBookHtml).getPlacesGrouped(page)
     places.available.length should be (1)
-    places.taken.length should be (2)
+    places.incomplete.length should be (2)
     places.available.head should be (CurrentBookLocation("F10 Robocza"))
-    places.taken.head should be (FutureBookLocation("F11 Marcinkowskiego"))
-    places.taken(1) should be (FutureBookLocation("F12 Rolna"))
+    places.incomplete.head should be (IncompleteBookLocation("F11 Marcinkowskiego"))
+    places.incomplete(1) should be (IncompleteBookLocation("F12 Rolna"))
   }
 
   it should "find book name" in {
