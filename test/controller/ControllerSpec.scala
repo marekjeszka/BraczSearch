@@ -96,7 +96,9 @@ class ControllerSpec extends PlaySpec with Results with MockitoSugar {
         .thenReturn((true, List(Book("t1", "a1", IncorrectISBN,"1990", ""))))
 
       val bodyText: String = contentAsString(searchController.search(ValidISBN)(FakeRequest()))
-      bodyText must (include ("t1") and include ("a1") and include("1990"))
+      bodyText must (
+        include ("t1") and include ("a1") and include("1990") and
+        include ("Select one of books:"))
     }
   }
 
