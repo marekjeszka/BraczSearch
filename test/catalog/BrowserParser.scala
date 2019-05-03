@@ -12,7 +12,7 @@ trait BrowserParser extends MockitoSugar {
   }
 
   protected def prepareStubBrowser(defaultHtml: String, urlHtml: (String,String)*): JsoupBrowser = {
-    import org.mockito.Matchers.anyString
+    import org.mockito.ArgumentMatchers.anyString
     import org.mockito.Mockito.when
 
     val stubBrowser = mock[JsoupBrowser]
