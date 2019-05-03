@@ -13,7 +13,7 @@ class BookSearcher(browser: JsoupBrowser) extends Browser[Book] {
   override protected val catalogLink: String = ConfigFactory.load().getString("braczsearch.searchlink")
   override protected def getBrowser: JsoupBrowser = browser
 
-  def this() = this(JsoupBrowser())
+  def this() = this(JsoupBrowser.typed())
 
   def searchByName(name: String): List[Book] = {
     val formattedLink = formatLink(name)

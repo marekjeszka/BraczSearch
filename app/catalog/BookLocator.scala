@@ -18,7 +18,7 @@ class BookLocator(browser: JsoupBrowser) extends Browser[BookLocation] {
   override protected val catalogLink: String = ConfigFactory.load().getString("braczsearch.cataloglink")
   override protected def getBrowser: JsoupBrowser = browser
 
-  def this() = this(JsoupBrowser())
+  def this() = this(JsoupBrowser.typed())
 
   /**
     * Checks if there is more than one entry for given ISBN.

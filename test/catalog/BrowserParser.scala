@@ -17,8 +17,8 @@ trait BrowserParser extends MockitoSugar {
 
     val stubBrowser = mock[JsoupBrowser]
 
-    when(stubBrowser.get(anyString())).thenReturn(JsoupBrowser().parseString(defaultHtml))
-    urlHtml.foreach(u => when(stubBrowser.get(u._1)).thenReturn(JsoupBrowser().parseString(u._2)))
+    when(stubBrowser.get(anyString())).thenReturn(JsoupBrowser.typed().parseString(defaultHtml))
+    urlHtml.foreach(u => when(stubBrowser.get(u._1)).thenReturn(JsoupBrowser.typed().parseString(u._2)))
     stubBrowser
   }
 }
